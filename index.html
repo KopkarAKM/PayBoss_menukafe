@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -36,9 +36,11 @@
     <div class="container mx-auto max-w-lg min-h-screen bg-white shadow-md">
         
         <!-- Header -->
-        <header class="p-4 border-b border-gray-200">
-            <h1 class="text-2xl font-bold text-center text-gray-900">Nama Kafe Anda</h1>
-            <p class="text-center text-gray-500 text-sm">Pesan & bayar langsung dari mejamu!</p>
+        <header class="p-4 border-b border-gray-200 text-center">
+            <!-- LOGO DARI GOOGLE DRIVE -->
+            <img src="https://drive.google.com/uc?export=view&id=1H-wUjOgpDg5swjkKyXcMOQx3WbB9pzv5" alt="Logo Kafe" class="w-20 h-20 mx-auto mb-2 rounded-full object-cover">
+            <h1 class="text-2xl font-bold text-gray-900">Nama Kafe Anda</h1>
+            <p class="text-gray-500 text-sm">Pesan & bayar langsung dari mejamu!</p>
         </header>
 
         <!-- Menu Categories -->
@@ -56,7 +58,7 @@
         <!-- Floating Cart Button -->
         <div id="cart-button" class="fixed bottom-6 right-6 z-20">
             <button onclick="toggleCartModal()" class="bg-indigo-600 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center transform transition-transform duration-200 hover:scale-110">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
                 <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
             </button>
         </div>
@@ -138,7 +140,7 @@
 
     <script>
         // --- KONFIGURASI ---
-        const CAFE_WHATSAPP_NUMBER = '6281234567890'; 
+        const CAFE_WHATSAPP_NUMBER = '6285349972513'; 
         
         // --- DATA MENU ---
         const menuData = [
