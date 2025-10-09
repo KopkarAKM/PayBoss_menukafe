@@ -37,9 +37,9 @@
         
         <!-- Header -->
         <header class="p-4 border-b border-gray-200 text-center">
-            <!-- LOGO DARI GOOGLE DRIVE -->
+            <!-- LOGO DARI GOOGLE DRIVE (Pastikan setelan berbagi adalah 'Siapa saja yang memiliki link') -->
             <img src="https://drive.google.com/uc?export=view&id=1H-wUjOgpDg5swjkKyXcMOQx3WbB9pzv5" alt="Logo Kafe" class="w-20 h-20 mx-auto mb-2 rounded-full object-cover">
-            <h1 class="text-2xl font-bold text-gray-900">Nama Kafe Anda</h1>
+            <h1 class="text-2xl font-bold text-gray-900">PayBoss</h1>
             <p class="text-gray-500 text-sm">Pesan & bayar langsung dari mejamu!</p>
         </header>
 
@@ -69,7 +69,7 @@
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-bold">Keranjang Anda</h2>
                     <button onclick="toggleCartModal()" class="text-gray-500 hover:text-gray-800">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                     </button>
                 </div>
                 <div id="cart-items-list" class="max-h-60 overflow-y-auto space-y-3 custom-scrollbar pr-2">
@@ -88,7 +88,7 @@
                 <div class="mt-6">
                     <button onclick="handleProceedToPayment()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold shadow-md hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-2">
                         <span>Lanjut ke Pembayaran</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                     </button>
                 </div>
             </div>
@@ -100,7 +100,7 @@
                  <div class="flex justify-between items-center mb-4">
                     <h2 class="text-xl font-bold">Pembayaran</h2>
                     <button onclick="togglePaymentModal()" class="text-gray-500 hover:text-gray-800">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                     </button>
                 </div>
 
@@ -120,7 +120,7 @@
 
                 <div class="mt-6">
                     <label for="payment-proof-input" class="w-full bg-blue-500 text-white py-3 rounded-lg font-bold shadow-md hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
                         <span id="upload-label">Unggah Bukti Pembayaran</span>
                     </label>
                     <input type="file" id="payment-proof-input" class="hidden-file-input" accept="image/*" onchange="handleProofUpload(event)">
@@ -129,7 +129,7 @@
 
                 <div class="mt-6">
                     <button id="send-order-btn" onclick="sendOrderWithProofToWhatsApp()" disabled class="w-full bg-gray-400 text-white py-3 rounded-lg font-bold shadow-md transition-colors flex items-center justify-center space-x-2 cursor-not-allowed">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4Z"/><path d="m22 2-11 11"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4Z"/><path d="m22 2-11 11"/></svg>
                         <span>Kirim Pesanan & Bukti Bayar</span>
                     </button>
                 </div>
