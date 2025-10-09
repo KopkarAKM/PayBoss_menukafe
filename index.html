@@ -128,11 +128,24 @@
                 </div>
 
                 <div class="mt-6">
-                    <button id="send-order-btn" onclick="sendOrderWithProofToWhatsApp()" disabled class="w-full bg-gray-400 text-white py-3 rounded-lg font-bold shadow-md transition-colors flex items-center justify-center space-x-2 cursor-not-allowed">
+                    <button id="send-order-btn" onclick="prepareWhatsAppMessage()" disabled class="w-full bg-gray-400 text-white py-3 rounded-lg font-bold shadow-md transition-colors flex items-center justify-center space-x-2 cursor-not-allowed">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4Z"/><path d="m22 2-11 11"/></svg>
                         <span>Kirim Pesanan & Bukti Bayar</span>
                     </button>
                 </div>
+            </div>
+        </div>
+        
+        <!-- Instruction Modal -->
+        <div id="instruction-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 pointer-events-none">
+            <div class="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-xl">
+                <h2 class="text-xl font-bold mb-2">Satu Langkah Terakhir!</h2>
+                <p class="text-gray-600 mb-4">Pesan WhatsApp sudah siap. Setelah membukanya, jangan lupa untuk **melampirkan (attach) bukti pembayaran** Anda.</p>
+                <button id="open-whatsapp-btn" class="w-full bg-green-500 text-white py-3 rounded-lg font-bold shadow-md hover:bg-green-600 transition-colors flex items-center justify-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4Z"/><path d="m22 2-11 11"/></svg>
+                    <span>Buka WhatsApp</span>
+                </button>
+                 <button onclick="toggleInstructionModal()" class="mt-2 text-sm text-gray-500 hover:text-gray-700">Batal</button>
             </div>
         </div>
 
@@ -159,7 +172,7 @@
         // --- APLIKASI STATE ---
         let cart = [];
         let currentCategory = 'Semua';
-        let paymentProofUploaded = false;
+        let paymentProofFile = null;
 
         // --- ELEMEN DOM ---
         const menuItemsContainer = document.getElementById('menu-items');
@@ -172,10 +185,12 @@
         const cartContent = document.getElementById('cart-content');
         const paymentModal = document.getElementById('payment-modal');
         const paymentContent = document.getElementById('payment-content');
+        const instructionModal = document.getElementById('instruction-modal');
         const paymentTotalElement = document.getElementById('payment-total');
         const paymentSummaryElement = document.getElementById('payment-summary');
         const sendOrderBtn = document.getElementById('send-order-btn');
         const uploadLabel = document.getElementById('upload-label');
+        const openWhatsappBtn = document.getElementById('open-whatsapp-btn');
 
         // --- FUNGSI ---
 
@@ -268,16 +283,18 @@
              const isHidden = modal.classList.contains('opacity-0');
             if (isHidden) {
                 modal.classList.remove('opacity-0', 'pointer-events-none');
-                content.classList.remove('translate-y-full');
+                if (content) content.classList.remove('translate-y-full');
             } else {
                 modal.classList.add('opacity-0');
-                content.classList.add('translate-y-full');
+                if (content) content.classList.add('translate-y-full');
                 setTimeout(() => modal.classList.add('pointer-events-none'), 300);
             }
         };
         
         const toggleCartModal = () => toggleModal(cartModal, cartContent);
         const togglePaymentModal = () => toggleModal(paymentModal, paymentContent);
+        const toggleInstructionModal = () => toggleModal(instructionModal, null);
+
 
         const handleProceedToPayment = () => {
             const tableNumber = document.getElementById('table-number').value;
@@ -290,7 +307,6 @@
                 return;
             }
             
-            // Populate payment modal
             const total = cart.reduce((sum, item) => sum + (menuData.find(menu => menu.id === item.id).price * item.quantity), 0);
             paymentTotalElement.textContent = formatCurrency(total);
             
@@ -303,42 +319,26 @@
             paymentSummaryElement.innerHTML = summaryHTML;
 
             toggleCartModal();
-            setTimeout(togglePaymentModal, 350); // Delay for smoother transition
+            setTimeout(togglePaymentModal, 350);
         };
 
         const handleProofUpload = (event) => {
             const file = event.target.files[0];
             if (file) {
-                paymentProofUploaded = true;
-                uploadLabel.textContent = file.name; // Show file name
+                paymentProofFile = file;
+                uploadLabel.textContent = file.name;
                 sendOrderBtn.disabled = false;
                 sendOrderBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
                 sendOrderBtn.classList.add('bg-green-500', 'hover:bg-green-600');
             }
         };
         
-        const sendOrderWithProofToWhatsApp = () => {
-            if (!paymentProofUploaded) {
+        const prepareWhatsAppMessage = () => {
+            if (!paymentProofFile) {
                 alert('Mohon unggah bukti pembayaran terlebih dahulu.');
                 return;
             }
-            const tableNumber = document.getElementById('table-number').value;
-            let message = `*PESANAN BARU (LUNAS)*\nMeja: *${tableNumber}*\n\n`;
-            let total = 0;
-
-            cart.forEach(cartItem => {
-                const menuItem = menuData.find(item => item.id === cartItem.id);
-                message += `- *${cartItem.quantity}x* ${menuItem.name}\n`;
-                total += menuItem.price * cartItem.quantity;
-            });
-
-            message += `\nTotal: *${formatCurrency(total)}*\n\n`;
-            message += `Pembayaran sudah dilakukan. Mohon lampirkan bukti pembayaran setelah mengirim pesan ini. Terima kasih.`;
-
-            const encodedMessage = encodeURIComponent(message);
-            const whatsappURL = `https://api.whatsapp.com/send?phone=${CAFE_WHATSAPP_NUMBER}&text=${encodedMessage}`;
-            
-            window.open(whatsappURL, '_blank');
+            toggleInstructionModal();
         };
 
         // --- INISIALISASI ---
@@ -346,6 +346,27 @@
             renderCategoryFilters();
             renderMenu();
             updateCart();
+
+            openWhatsappBtn.addEventListener('click', () => {
+                const tableNumber = document.getElementById('table-number').value;
+                let message = `*PESANAN BARU (LUNAS)*\nMeja: *${tableNumber}*\n\n`;
+                let total = 0;
+
+                cart.forEach(cartItem => {
+                    const menuItem = menuData.find(item => item.id === cartItem.id);
+                    message += `- *${cartItem.quantity}x* ${menuItem.name}\n`;
+                    total += menuItem.price * cartItem.quantity;
+                });
+
+                message += `\nTotal: *${formatCurrency(total)}*\n\n`;
+                message += `Pembayaran sudah dilakukan. Mohon lampirkan bukti pembayaran setelah mengirim pesan ini. Terima kasih.`;
+
+                const encodedMessage = encodeURIComponent(message);
+                const whatsappURL = `https://api.whatsapp.com/send?phone=${CAFE_WHATSAPP_NUMBER}&text=${encodedMessage}`;
+                
+                window.open(whatsappURL, '_blank');
+                toggleInstructionModal();
+            });
         });
     </script>
 </body>
