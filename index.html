@@ -1,374 +1,794 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale-1.0">
-    <title>Menu Digital PayBoss</title>
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayBoss Cafe</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            font-family: 'Poppins', sans-serif;
+            background-color: #d5e8cf;
         }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #888; border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #555; }
-        /* Hide default file input */
-        .hidden-file-input {
-            width: 0.1px;
-            height: 0.1px;
-            opacity: 0;
-            overflow: hidden;
-            position: absolute;
-            z-index: -1;
+        .hidden { display: none; }
+        .page {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+        .status-pending { background-color: #fef3c7; color: #92400e; }
+        .status-awaiting { background-color: #dbeafe; color: #1e40af; }
+        .status-preparing { background-color: #fee2e2; color: #991b1b; }
+        .status-completed { background-color: #d1fae5; color: #065f46; }
+        .new-order-pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 70, 15, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 70, 15, 0); }
         }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="text-neutral-dark">
 
-    <!-- Main Container -->
-    <div class="container mx-auto max-w-lg min-h-screen bg-white shadow-md">
-        
-        <!-- Header -->
-        <header class="p-4 border-b border-gray-200 text-center">
-            <!-- LOGO DARI FOLDER GITHUB -->
-            <img src="./assets/Payboss.png" alt="Logo Kafe" class="h-20 mx-auto mb-2">
-            <h1 class="text-2xl font-bold text-gray-900">PayBoss</h1>
-            <p class="text-gray-500 text-sm">Pesan & bayar langsung dari mejamu!</p>
-        </header>
+    <div id="app-container" class="max-w-7xl mx-auto">
 
-        <!-- Menu Categories -->
-        <nav class="p-4 sticky top-0 bg-white z-10 border-b border-gray-200">
-            <div id="category-filters" class="flex space-x-3 overflow-x-auto pb-2">
-                <!-- Category buttons will be inserted here by JavaScript -->
-            </div>
-        </nav>
-
-        <!-- Menu Items -->
-        <main id="menu-items" class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- Menu items will be inserted here by JavaScript -->
-        </main>
-
-        <!-- Floating Cart Button -->
-        <div id="cart-button" class="fixed bottom-6 right-6 z-20">
-            <button onclick="toggleCartModal()" class="bg-indigo-600 text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center transform transition-transform duration-200 hover:scale-110">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
-                <span id="cart-count" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
-            </button>
-        </div>
-
-        <!-- Cart Modal -->
-        <div id="cart-modal" class="fixed inset-0 bg-black bg-opacity-50 z-30 flex items-end justify-center transition-opacity duration-300 opacity-0 pointer-events-none">
-            <div id="cart-content" class="bg-white w-full max-w-lg rounded-t-2xl p-6 transform translate-y-full transition-transform duration-300">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold">Keranjang Anda</h2>
-                    <button onclick="toggleCartModal()" class="text-gray-500 hover:text-gray-800">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
+        <!-- Customer: Menu View -->
+        <div id="customer-menu-page" class="page">
+            <header class="bg-primary-dark text-neutral-light p-4 shadow-lg sticky top-0 z-20">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold">PayBoss Cafe</h1>
+                    <button id="admin-login-button" class="text-sm p-2 rounded-md hover:bg-secondary-dark transition-colors">Owner Login</button>
                 </div>
-                <div id="cart-items-list" class="max-h-60 overflow-y-auto space-y-3 custom-scrollbar pr-2">
-                   <p id="empty-cart-message" class="text-gray-500 text-center py-4">Keranjang masih kosong.</p>
-                </div>
-                <div class="mt-4">
-                    <label for="table-number" class="block text-sm font-medium text-gray-700">Nomor Meja</label>
-                    <input type="text" id="table-number" name="table-number" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Contoh: 1A">
-                </div>
-                <div class="mt-6 pt-4 border-t">
-                    <div class="flex justify-between items-center font-bold text-lg">
-                        <span>Total</span>
-                        <span id="cart-total">Rp 0</span>
-                    </div>
-                </div>
-                <div class="mt-6">
-                    <button onclick="handleProceedToPayment()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold shadow-md hover:bg-indigo-700 transition-colors flex items-center justify-center space-x-2">
-                        <span>Lanjut ke Pembayaran</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Payment Modal -->
-        <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-end justify-center transition-opacity duration-300 opacity-0 pointer-events-none">
-            <div id="payment-content" class="bg-white w-full max-w-lg rounded-t-2xl p-6 transform translate-y-full transition-transform duration-300">
-                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold">Pembayaran</h2>
-                    <button onclick="togglePaymentModal()" class="text-gray-500 hover:text-gray-800">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                    </button>
-                </div>
-
-                <div class="text-center">
-                    <p class="text-gray-600 mb-2">Scan QRIS di bawah ini untuk membayar</p>
-                    <div class="flex justify-center">
-                         <!-- GANTI DENGAN GAMBAR QRIS ANDA -->
-                        <img src="https://placehold.co/300x300/ffffff/000000?text=QRIS+ANDA" alt="QRIS Code" class="w-64 h-64 border-4 border-gray-300 rounded-lg">
-                    </div>
-                    <p class="font-bold text-2xl mt-4" id="payment-total">Rp 0</p>
-                </div>
-
-                <div class="mt-6">
-                    <h3 class="font-semibold mb-2">Ringkasan Pesanan:</h3>
-                    <div id="payment-summary" class="text-sm text-gray-700 max-h-24 overflow-y-auto custom-scrollbar border p-2 rounded-md"></div>
-                </div>
-
-                <div class="mt-6">
-                    <label for="payment-proof-input" class="w-full bg-blue-500 text-white py-3 rounded-lg font-bold shadow-md hover:bg-blue-600 transition-colors flex items-center justify-center space-x-2 cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                        <span id="upload-label">Unggah Bukti Pembayaran</span>
-                    </label>
-                    <input type="file" id="payment-proof-input" class="hidden-file-input" accept="image/*" onchange="handleProofUpload(event)">
-                    <p class="text-xs text-center text-gray-500 mt-2">Screenshot atau foto bukti transfer Anda.</p>
-                </div>
-
-                <div class="mt-6">
-                    <button id="send-order-btn" onclick="prepareWhatsAppMessage()" disabled class="w-full bg-gray-400 text-white py-3 rounded-lg font-bold shadow-md transition-colors flex items-center justify-center space-x-2 cursor-not-allowed">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4Z"/><path d="m22 2-11 11"/></svg>
-                        <span>Kirim Pesanan & Bukti Bayar</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Instruction Modal -->
-        <div id="instruction-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 transition-opacity duration-300 opacity-0 pointer-events-none">
-            <div class="bg-white w-full max-w-sm rounded-2xl p-6 text-center shadow-xl">
-                <h2 class="text-xl font-bold mb-2">Satu Langkah Terakhir!</h2>
-                <p class="text-gray-600 mb-4">Pesan WhatsApp sudah siap. Setelah membukanya, jangan lupa untuk **melampirkan (attach) bukti pembayaran** Anda.</p>
-                <button id="open-whatsapp-btn" class="w-full bg-green-500 text-white py-3 rounded-lg font-bold shadow-md hover:bg-green-600 transition-colors flex items-center justify-center space-x-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4Z"/><path d="m22 2-11 11"/></svg>
-                    <span>Buka WhatsApp</span>
+            </header>
+            <main id="menu-container" class="p-4 pb-24">
+                 <p class="text-center text-gray-500" id="loading-text">Memuat menu...</p>
+            </main>
+            <div id="cart-fab-container" class="fixed bottom-6 right-6 z-30">
+                <button id="cart-fab" class="bg-primary-dark text-neutral-light w-16 h-16 rounded-full shadow-lg flex items-center justify-center relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-error text-white text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center">0</span>
                 </button>
-                 <button onclick="toggleInstructionModal()" class="mt-2 text-sm text-gray-500 hover:text-gray-700">Batal</button>
+            </div>
+        </div>
+
+        <!-- Customer: Cart View -->
+        <div id="cart-page" class="page hidden">
+            <header class="bg-primary-dark text-neutral-light p-4 shadow-lg flex items-center">
+                <button id="back-to-menu-btn" class="mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <h1 class="text-2xl font-bold">Your Order</h1>
+            </header>
+            <main id="cart-items-container" class="p-4 pb-32">
+                <!-- Cart items will be injected here -->
+            </main>
+            <footer class="fixed bottom-0 left-0 right-0 bg-neutral-light p-4 border-t border-secondary-light shadow-inner">
+                <div class="max-w-7xl mx-auto">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-lg font-semibold">Total:</span>
+                        <span id="cart-total" class="text-2xl font-bold text-primary-dark">Rp 0</span>
+                    </div>
+                    <button id="checkout-btn" class="w-full bg-primary-dark text-neutral-light py-3 rounded-lg font-bold text-lg shadow-md hover:bg-secondary-dark transition-colors disabled:bg-gray-400">Checkout</button>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Customer: Checkout View -->
+        <div id="checkout-page" class="page hidden">
+             <header class="bg-primary-dark text-neutral-light p-4 shadow-lg flex items-center">
+                <button id="back-to-cart-btn" class="mr-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <h1 class="text-2xl font-bold">Checkout</h1>
+            </header>
+            <main class="p-6">
+                <div class="bg-neutral-light p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-semibold mb-4">Order Summary</h2>
+                    <div id="checkout-summary" class="space-y-2 mb-4 border-b pb-4"></div>
+                    <div class="flex justify-between items-center font-bold text-xl">
+                        <span>Total:</span>
+                        <span id="checkout-total" class="text-primary-dark"></span>
+                    </div>
+                </div>
+                <div class="bg-neutral-light p-6 rounded-lg shadow-md mt-6">
+                    <label for="table-number" class="block text-lg font-medium mb-2">Enter Your Table Number</label>
+                    <input type="number" id="table-number" class="w-full p-3 border border-secondary-light rounded-lg text-lg focus:ring-primary-dark focus:border-primary-dark" placeholder="e.g., 5">
+                    <p id="table-number-error" class="text-error text-sm mt-1 hidden">Table number is required.</p>
+                </div>
+                 <div class="bg-neutral-light p-6 rounded-lg shadow-md mt-6 flex items-center space-x-4">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=QRIS" alt="QRIS Logo" class="w-12 h-12">
+                    <div>
+                        <h3 class="font-bold text-lg">Payment Method</h3>
+                        <p class="text-neutral-dark/80">Pay with QRIS (at cashier)</p>
+                    </div>
+                </div>
+            </main>
+            <footer class="fixed bottom-0 left-0 right-0 bg-neutral-light p-4 border-t border-secondary-light shadow-inner">
+                <div class="max-w-7xl mx-auto">
+                    <button id="place-order-btn" class="w-full bg-primary-dark text-neutral-light py-3 rounded-lg font-bold text-lg shadow-md hover:bg-secondary-dark transition-colors">Place Order</button>
+                </div>
+            </footer>
+        </div>
+
+        <!-- Admin: Login View -->
+        <div id="login-page" class="page hidden">
+            <div class="min-h-screen flex items-center justify-center bg-secondary-light">
+                <div class="bg-neutral-light p-8 rounded-lg shadow-2xl w-full max-w-sm">
+                    <h2 class="text-3xl font-bold text-center text-primary-dark mb-6">PayBoss Dashboard</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="username" class="block text-sm font-medium">Username</label>
+                            <input type="text" id="username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-dark focus:border-primary-dark">
+                        </div>
+                        <div>
+                            <label for="password" class="block text-sm font-medium">Password</label>
+                            <input type="password" id="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-dark focus:border-primary-dark">
+                        </div>
+                        <p id="login-error" class="text-error text-sm hidden">Invalid credentials.</p>
+                        <button id="login-btn" class="w-full bg-primary-dark text-neutral-light py-2 rounded-lg font-bold hover:bg-secondary-dark transition-colors">Login</button>
+                        <button id="back-to-customer-view-btn" class="w-full mt-2 text-sm text-primary-dark hover:underline">Back to Menu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin: Dashboard View -->
+        <div id="dashboard-page" class="page hidden">
+            <div class="flex flex-col md:flex-row min-h-screen bg-secondary-light">
+                <nav class="bg-secondary-dark text-neutral-light w-full md:w-64 p-4 md:p-6 flex-shrink-0">
+                    <h2 class="text-2xl font-bold mb-8">PayBoss Admin</h2>
+                    <ul class="space-y-2">
+                        <li><button data-view="orders" class="dashboard-nav-btn w-full text-left p-3 rounded-md bg-primary-dark">Order Queue</button></li>
+                        <li id="nav-menu-manager"><button data-view="menu" class="dashboard-nav-btn w-full text-left p-3 rounded-md hover:bg-neutral-dark transition-colors">Menu Manager</button></li>
+                        <li id="nav-sales-dashboard"><button data-view="sales" class="dashboard-nav-btn w-full text-left p-3 rounded-md hover:bg-neutral-dark transition-colors">Sales Dashboard</button></li>
+                    </ul>
+                    <div class="mt-auto pt-8">
+                          <button id="logout-btn" class="w-full text-left p-3 rounded-md hover:bg-neutral-dark transition-colors">Logout</button>
+                    </div>
+                </nav>
+                <main class="flex-1 p-4 md:p-8 overflow-y-auto">
+                    <div id="orders-view" class="dashboard-content">
+                        <h1 class="text-3xl font-bold mb-6">Active Orders</h1>
+                        <div id="order-queue-container" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+                    </div>
+                    <div id="menu-view" class="dashboard-content hidden">
+                        <div class="flex justify-between items-center mb-6">
+                            <h1 class="text-3xl font-bold">Menu Management</h1>
+                            <button id="add-new-item-btn" class="bg-primary-dark text-neutral-light px-4 py-2 rounded-md font-semibold hover:bg-secondary-dark transition-colors">Add New Item</button>
+                        </div>
+                        <div class="bg-neutral-light shadow-md rounded-lg overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-secondary-light uppercase">
+                                    <tr>
+                                        <th class="p-3">Product</th>
+                                        <th class="p-3">Category</th>
+                                        <th class="p-3">Price</th>
+                                        <th class="p-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="menu-manager-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="sales-view" class="dashboard-content hidden">
+                        <h1 class="text-3xl font-bold mb-6">Sales Dashboard</h1>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-neutral-light p-6 rounded-lg shadow-md">
+                                <h3 class="text-lg font-semibold text-neutral-dark/80">Total Sales Today</h3>
+                                <p id="sales-total" class="text-4xl font-bold text-primary-dark mt-2">Rp 0</p>
+                            </div>
+                            <div class="bg-neutral-light p-6 rounded-lg shadow-md">
+                                <h3 class="text-lg font-semibold text-neutral-dark/80">Orders Today</h3>
+                                <p id="sales-orders-count" class="text-4xl font-bold text-primary-dark mt-2">0</p>
+                            </div>
+                            <div class="bg-neutral-light p-6 rounded-lg shadow-md">
+                                <h3 class="text-lg font-semibold text-neutral-dark/80">Average Order Value</h3>
+                                <p id="sales-avg-order" class="text-4xl font-bold text-primary-dark mt-2">Rp 0</p>
+                            </div>
+                        </div>
+                        <div class="mt-8 bg-neutral-light p-6 rounded-lg shadow-md">
+                            <h3 class="text-xl font-bold mb-4">Most Popular Items</h3>
+                            <ul id="sales-popular-items" class="space-y-2"></ul>
+                        </div>
+                    </div>
+                </main>
             </div>
         </div>
 
     </div>
 
-    <script>
-        // --- KONFIGURASI ---
-        const CAFE_WHATSAPP_NUMBER = '6285349972513'; 
-        
-        // --- DATA MENU ---
-        const menuData = [
-            { id: 1, name: 'Nasi Goreng Spesial', category: 'Makanan', price: 28000, image: 'https://placehold.co/400x300/f87171/ffffff?text=Nasi+Goreng' },
-            { id: 2, name: 'Mie Ayam Bakso', category: 'Makanan', price: 22000, image: 'https://placehold.co/400x300/fb923c/ffffff?text=Mie+Ayam' },
-            { id: 3, name: 'Soto Ayam Lamongan', category: 'Makanan', price: 20000, image: 'https://placehold.co/400x300/a3e635/ffffff?text=Soto' },
-            { id: 4, name: 'Espresso', category: 'Kopi', price: 15000, image: 'https://placehold.co/400x300/60a5fa/ffffff?text=Espresso' },
-            { id: 5, name: 'Caffe Latte', category: 'Kopi', price: 22000, image: 'https://placehold.co/400x300/818cf8/ffffff?text=Latte' },
-            { id: 6, name: 'Cappuccino', category: 'Kopi', price: 22000, image: 'https://placehold.co/400x300/c084fc/ffffff?text=Cappuccino' },
-            { id: 7, name: 'Es Teh Manis', category: 'Minuman', price: 8000, image: 'https://placehold.co/400x300/34d399/ffffff?text=Es+Teh' },
-            { id: 8, name: 'Jus Alpukat', category: 'Minuman', price: 18000, image: 'https://placehold.co/400x300/22d3ee/ffffff?text=Jus' },
-            { id: 9, name: 'Kentang Goreng', category: 'Cemilan', price: 15000, image: 'https://placehold.co/400x300/facc15/ffffff?text=Kentang' },
-            { id: 10, name: 'Roti Bakar Coklat', category: 'Cemilan', price: 17000, image: 'https://placehold.co/400x300/eab308/ffffff?text=Roti+Bakar' },
-        ];
+    <!-- Modals -->
+     <div id="order-success-modal" class="modal-overlay hidden">
+        <div class="bg-neutral-light p-8 rounded-lg shadow-xl text-center max-w-sm m-4">
+             <h3 class="text-2xl font-bold text-primary-dark mb-4">Pesanan Terkirim!</h3>
+             <p class="mb-6">Pesanan Anda telah dikirim ke dapur. Silakan lakukan pembayaran di kasir.</p>
+             <button id="close-success-modal-btn" class="w-full bg-primary-dark text-neutral-light py-2 rounded-lg font-bold">Selesai</button>
+        </div>
+    </div>
+    
+    <div id="menu-item-modal" class="modal-overlay hidden">
+        <div class="bg-neutral-light p-6 rounded-lg shadow-xl w-full max-w-md m-4">
+            <h3 id="menu-item-modal-title" class="text-xl font-bold mb-4">Add New Item</h3>
+            <form id="menu-item-form" class="space-y-4">
+                <input type="hidden" id="menu-item-id">
+                <div>
+                    <label for="menu-item-name" class="block text-sm font-medium">Product Name</label>
+                    <input type="text" id="menu-item-name" class="mt-1 w-full p-2 border rounded-md" required>
+                </div>
+                <div>
+                    <label for="menu-item-category" class="block text-sm font-medium">Category</label>
+                    <input type="text" id="menu-item-category" class="mt-1 w-full p-2 border rounded-md" required>
+                </div>
+                <div>
+                    <label for="menu-item-price" class="block text-sm font-medium">Price</label>
+                    <input type="number" id="menu-item-price" class="mt-1 w-full p-2 border rounded-md" required>
+                </div>
+                <div>
+                    <label for="menu-item-desc" class="block text-sm font-medium">Description</label>
+                    <textarea id="menu-item-desc" rows="3" class="mt-1 w-full p-2 border rounded-md" required></textarea>
+                </div>
+                <div>
+                    <label for="menu-item-image" class="block text-sm font-medium">Image URL</label>
+                    <input type="text" id="menu-item-image" class="mt-1 w-full p-2 border rounded-md" required>
+                </div>
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="cancel-menu-item-btn" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-md bg-primary-dark text-neutral-light hover:bg-secondary-dark">Save Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        // --- APLIKASI STATE ---
-        let cart = [];
-        let currentCategory = 'Semua';
-        let paymentProofFile = null;
+    <div id="delete-confirm-modal" class="modal-overlay hidden">
+        <div class="bg-neutral-light p-6 rounded-lg shadow-xl w-full max-w-sm m-4">
+            <h3 class="text-xl font-bold mb-4">Confirm Deletion</h3>
+            <p class="mb-6">Are you sure you want to delete this item? This action cannot be undone.</p>
+            <div class="flex justify-end space-x-4">
+                <button id="cancel-delete-btn" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Cancel</button>
+                <button id="confirm-delete-btn" class="px-4 py-2 rounded-md bg-error text-neutral-light hover:bg-red-700">Delete</button>
+            </div>
+        </div>
+    </div>
 
-        // --- ELEMEN DOM ---
-        const menuItemsContainer = document.getElementById('menu-items');
-        const categoryFiltersContainer = document.getElementById('category-filters');
-        const cartCountElement = document.getElementById('cart-count');
-        const cartItemsList = document.getElementById('cart-items-list');
-        const cartTotalElement = document.getElementById('cart-total');
-        const emptyCartMessage = document.getElementById('empty-cart-message');
-        const cartModal = document.getElementById('cart-modal');
-        const cartContent = document.getElementById('cart-content');
-        const paymentModal = document.getElementById('payment-modal');
-        const paymentContent = document.getElementById('payment-content');
-        const instructionModal = document.getElementById('instruction-modal');
-        const paymentTotalElement = document.getElementById('payment-total');
-        const paymentSummaryElement = document.getElementById('payment-summary');
-        const sendOrderBtn = document.getElementById('send-order-btn');
-        const uploadLabel = document.getElementById('upload-label');
-        const openWhatsappBtn = document.getElementById('open-whatsapp-btn');
+<script>
+    // --- KONFIGURASI ---
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiJjEcAE7PL-GmTRacrWx9gJmmfDcPjBVlhxQhd4Hrbfq9hvxA620B6b8gTlqPYG2s/exec';
 
-        // --- FUNGSI ---
-
-        const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
-        
-        const renderMenu = () => {
-            menuItemsContainer.innerHTML = '';
-            const filteredMenu = menuData.filter(item => currentCategory === 'Semua' || item.category === currentCategory);
-            filteredMenu.forEach(item => {
-                const menuItem = document.createElement('div');
-                menuItem.className = 'bg-white rounded-lg shadow border border-gray-200 overflow-hidden flex flex-col';
-                menuItem.innerHTML = `
-                    <img src="${item.image}" alt="${item.name}" class="w-full h-40 object-cover">
-                    <div class="p-4 flex flex-col flex-grow">
-                        <h3 class="font-bold text-lg">${item.name}</h3>
-                        <p class="text-gray-600 mt-1">${formatCurrency(item.price)}</p>
-                        <div class="mt-auto pt-4">
-                            <button onclick="addToCart(${item.id})" class="w-full bg-indigo-100 text-indigo-700 font-semibold py-2 px-4 rounded-lg hover:bg-indigo-200 transition-colors">Tambah</button>
-                        </div>
-                    </div>`;
-                menuItemsContainer.appendChild(menuItem);
-            });
-        };
-
-        const renderCategoryFilters = () => {
-            const categories = ['Semua', ...new Set(menuData.map(item => item.category))];
-            categoryFiltersContainer.innerHTML = '';
-            categories.forEach(category => {
-                const button = document.createElement('button');
-                button.textContent = category;
-                button.className = `px-4 py-2 rounded-full font-semibold text-sm transition-colors whitespace-nowrap ${currentCategory === category ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700'}`;
-                button.onclick = () => {
-                    currentCategory = category;
-                    renderCategoryFilters();
-                    renderMenu();
-                };
-                categoryFiltersContainer.appendChild(button);
-            });
-        };
-
-        const addToCart = (itemId) => {
-            const existingItem = cart.find(item => item.id === itemId);
-            if (existingItem) existingItem.quantity++;
-            else cart.push({ id: itemId, quantity: 1 });
-            updateCart();
-        };
-
-        const changeQuantity = (itemId, amount) => {
-            const cartItem = cart.find(item => item.id === itemId);
-            if (cartItem) {
-                cartItem.quantity += amount;
-                if (cartItem.quantity <= 0) cart = cart.filter(item => item.id !== itemId);
+    // --- TAILWIND CONFIG ---
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    primary: { dark: '#00460f', light: '#ecffe4' },
+                    secondary: { dark: '#303f2e', light: '#e4f6dc' },
+                    background: '#d5e8cf',
+                    error: '#de3730',
+                    neutral: { dark: '#3a3c38', light: '#f9faf4' },
+                }
             }
-            updateCart();
+        }
+    };
+
+    // --- APP STATE ---
+    const AppState = {
+        menuItems: [],
+        orders: [],
+        cart: [],
+        currentUser: null,
+        itemToDelete: null,
+    };
+
+    // --- UTILS ---
+    const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => document.querySelectorAll(selector);
+
+    const showPage = (pageId) => {
+        $$('.page').forEach(p => p.classList.add('hidden'));
+        $(`#${pageId}`).classList.remove('hidden');
+        window.scrollTo(0, 0);
+    };
+    
+    const showModal = (modalId) => $(`#${modalId}`).classList.remove('hidden');
+    const hideModal = (modalId) => $(`#${modalId}`).classList.add('hidden');
+
+    // --- API CALLS ---
+    const callApi = async (method, action, payload) => {
+        const url = `${APPS_SCRIPT_URL}${method === 'GET' ? `?action=${action}` : ''}`;
+        const options = {
+            method: method,
+            redirect: 'follow', // Penting untuk Apps Script
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Diubah agar kompatibel
         };
+        if (method === 'POST') {
+            options.body = JSON.stringify({ action, payload });
+        }
         
-        const updateCart = () => {
-            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            cartCountElement.textContent = totalItems;
-            
-            if (cart.length === 0) {
-                cartItemsList.innerHTML = '';
-                emptyCartMessage.style.display = 'block';
-            } else {
-                emptyCartMessage.style.display = 'none';
-                cartItemsList.innerHTML = '';
-                cart.forEach(cartItem => {
-                    const menuItem = menuData.find(item => item.id === cartItem.id);
-                    const itemElement = document.createElement('div');
-                    itemElement.className = 'flex justify-between items-center';
-                    itemElement.innerHTML = `
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            const result = await response.json();
+            if (result.status === 'error') throw new Error(result.message);
+            return result;
+        } catch (error) {
+            console.error(`API call failed for action ${action}:`, error);
+            alert(`An error occurred: ${error.message}`);
+            return { status: 'error', message: error.message };
+        }
+    };
+    
+    // --- RENDER FUNCTIONS ---
+    const renderMenu = () => {
+        const menuContainer = $('#menu-container');
+        if (AppState.menuItems.length === 0) {
+           $('#loading-text').textContent = 'Menu belum tersedia.';
+            return;
+        }
+         $('#loading-text').classList.add('hidden');
+        const categories = [...new Set(AppState.menuItems.map(item => item.Kategori))];
+        menuContainer.innerHTML = categories.map(category => `
+            <div class="mb-8">
+                <h2 class="text-2xl font-bold mb-4 border-b-2 border-primary-dark pb-2">${category}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    ${AppState.menuItems.filter(item => item.Kategori === category).map(item => `
+                        <div class="bg-neutral-light rounded-lg shadow-md overflow-hidden flex flex-col">
+                            <img src="${item.Gambar}" alt="${item.Nama_Produk}" class="w-full h-48 object-cover">
+                            <div class="p-4 flex flex-col flex-grow">
+                                <h3 class="text-xl font-bold">${item.Nama_Produk}</h3>
+                                <p class="text-neutral-dark/80 text-sm my-2 flex-grow">${item.Deskripsi}</p>
+                                <div class="flex justify-between items-center mt-4">
+                                    <span class="text-lg font-semibold text-primary-dark">${formatCurrency(item.Harga)}</span>
+                                    <button class="add-to-cart-btn bg-primary-dark text-neutral-light px-4 py-2 rounded-md font-semibold hover:bg-secondary-dark transition-colors" data-id="${item.ID_Menu}">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `).join('');
+    };
+
+    const updateCartView = () => {
+        const cartItemsContainer = $('#cart-items-container');
+        const cartCount = $('#cart-count');
+        const cartTotalEl = $('#cart-total');
+        const checkoutBtn = $('#checkout-btn');
+
+        const totalItems = AppState.cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartCount.textContent = totalItems;
+        $('#cart-fab-container').classList.toggle('hidden', totalItems === 0);
+
+        if (AppState.cart.length === 0) {
+            cartItemsContainer.innerHTML = `<p class="text-center text-gray-500 mt-8">Your cart is empty.</p>`;
+            checkoutBtn.disabled = true;
+        } else {
+            cartItemsContainer.innerHTML = AppState.cart.map(cartItem => {
+                const menuItem = AppState.menuItems.find(m => m.ID_Menu === cartItem.id);
+                if (!menuItem) return '';
+                return `
+                    <div class="flex items-center justify-between bg-neutral-light p-4 rounded-lg shadow-sm mb-4">
                         <div>
-                            <p class="font-semibold">${menuItem.name}</p>
-                            <p class="text-sm text-gray-600">${formatCurrency(menuItem.price)}</p>
+                            <p class="font-bold text-lg">${menuItem.Nama_Produk}</p>
+                            <p class="text-primary-dark font-semibold">${formatCurrency(menuItem.Harga * cartItem.quantity)}</p>
                         </div>
                         <div class="flex items-center space-x-3">
-                            <button onclick="changeQuantity(${cartItem.id}, -1)" class="bg-gray-200 w-7 h-7 rounded-full font-bold text-gray-700">-</button>
-                            <span class="font-semibold w-4 text-center">${cartItem.quantity}</span>
-                            <button onclick="changeQuantity(${cartItem.id}, 1)" class="bg-gray-200 w-7 h-7 rounded-full font-bold text-gray-700">+</button>
-                        </div>`;
-                    cartItemsList.appendChild(itemElement);
-                });
-            }
+                            <button class="quantity-btn bg-secondary-light w-8 h-8 rounded-full font-bold" data-id="${cartItem.id}" data-change="-1">-</button>
+                            <span class="text-lg font-semibold w-8 text-center">${cartItem.quantity}</span>
+                            <button class="quantity-btn bg-secondary-light w-8 h-8 rounded-full font-bold" data-id="${cartItem.id}" data-change="1">+</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            checkoutBtn.disabled = false;
+        }
 
-            const total = cart.reduce((sum, item) => sum + (menuData.find(menu => menu.id === item.id).price * item.quantity), 0);
-            cartTotalElement.textContent = formatCurrency(total);
-        };
-
-        const toggleModal = (modal, content) => {
-             const isHidden = modal.classList.contains('opacity-0');
-            if (isHidden) {
-                modal.classList.remove('opacity-0', 'pointer-events-none');
-                if (content) content.classList.remove('translate-y-full');
-            } else {
-                modal.classList.add('opacity-0');
-                if (content) content.classList.add('translate-y-full');
-                setTimeout(() => modal.classList.add('pointer-events-none'), 300);
-            }
-        };
+        const total = AppState.cart.reduce((sum, item) => {
+            const menuItem = AppState.menuItems.find(m => m.ID_Menu === item.id);
+            return sum + (menuItem ? menuItem.Harga * item.quantity : 0);
+        }, 0);
+        cartTotalEl.textContent = formatCurrency(total);
+    };
+    
+    const renderCheckoutSummary = () => {
+        const summaryContainer = $('#checkout-summary');
+        const totalEl = $('#checkout-total');
         
-        const toggleCartModal = () => toggleModal(cartModal, cartContent);
-        const togglePaymentModal = () => toggleModal(paymentModal, paymentContent);
-        const toggleInstructionModal = () => toggleModal(instructionModal, null);
+        summaryContainer.innerHTML = AppState.cart.map(cartItem => {
+            const menuItem = AppState.menuItems.find(m => m.ID_Menu === cartItem.id);
+             if (!menuItem) return '';
+            return `
+                <div class="flex justify-between">
+                    <span>${cartItem.quantity}x ${menuItem.Nama_Produk}</span>
+                    <span>${formatCurrency(menuItem.Harga * cartItem.quantity)}</span>
+                </div>
+            `;
+        }).join('');
+
+        const total = AppState.cart.reduce((sum, item) => {
+            const menuItem = AppState.menuItems.find(m => m.ID_Menu === item.id);
+            return sum + (menuItem ? menuItem.Harga * item.quantity : 0);
+        }, 0);
+        totalEl.textContent = formatCurrency(total);
+    };
+
+    const renderOrderQueue = () => {
+        const container = $('#order-queue-container');
+        const sortedOrders = AppState.orders
+            .filter(o => o.Status !== 'Completed')
+            .sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp));
+        
+        if (sortedOrders.length === 0) {
+            container.innerHTML = `<p class="text-center text-gray-500 col-span-full">No active orders.</p>`;
+            return;
+        }
+
+        container.innerHTML = sortedOrders.map(order => {
+            const statusClass = {
+                "Pending Payment": "status-pending",
+                "Awaiting Confirmation": "status-awaiting",
+                "Preparing": "status-preparing",
+                "Completed": "status-completed"
+            }[order.Status] || "bg-gray-200";
+
+            const nextAction = {
+                "Pending Payment": { text: "Confirm Payment", status: "Awaiting Confirmation" },
+                "Awaiting Confirmation": { text: "Prepare Order", status: "Preparing" },
+                "Preparing": { text: "Mark as Completed", status: "Completed" },
+            }[order.Status];
+            
+            let detailPesanan;
+            try {
+                 detailPesanan = typeof order.Detail_Pesanan === 'string' ? JSON.parse(order.Detail_Pesanan) : order.Detail_Pesanan;
+            } catch (e) {
+                detailPesanan = [{Jumlah: 'N/A', Nama_Produk: 'Invalid order details'}];
+            }
 
 
-        const handleProceedToPayment = () => {
-            const tableNumber = document.getElementById('table-number').value;
-            if (cart.length === 0) {
-                alert('Keranjang Anda kosong.');
-                return;
-            }
-            if (!tableNumber) {
-                alert('Mohon isi nomor meja Anda.');
-                return;
-            }
-            
-            const total = cart.reduce((sum, item) => sum + (menuData.find(menu => menu.id === item.id).price * item.quantity), 0);
-            paymentTotalElement.textContent = formatCurrency(total);
-            
-            let summaryHTML = '<ul>';
-            cart.forEach(cartItem => {
-                const menuItem = menuData.find(item => item.id === cartItem.id);
-                summaryHTML += `<li class="flex justify-between"><span>${cartItem.quantity}x ${menuItem.name}</span> <span>${formatCurrency(menuItem.price * cartItem.quantity)}</span></li>`;
+            return `
+                <div class="bg-neutral-light p-4 rounded-lg shadow-md flex flex-col ${order.isNew ? 'new-order-pulse' : ''}" id="order-${order.ID_Pesanan}">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold text-lg">Table ${order.Nomor_Meja}</h3>
+                        <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${order.Status}</span>
+                    </div>
+                    <p class="text-xs text-gray-500 mb-3">${order.ID_Pesanan} - ${new Date(order.Timestamp).toLocaleTimeString()}</p>
+                    <ul class="space-y-1 text-sm border-t border-b border-secondary-light py-2 my-2 flex-grow">
+                        ${detailPesanan.map(item => `<li>${item.Jumlah}x ${item.Nama_Produk}</li>`).join('')}
+                    </ul>
+                    <div class="flex justify-between items-center font-bold mt-2">
+                        <span>Total:</span>
+                        <span>${formatCurrency(order.Total_Harga)}</span>
+                    </div>
+                    ${nextAction ? `
+                    <button class="update-status-btn mt-4 w-full bg-primary-dark text-neutral-light py-2 rounded-md font-semibold hover:bg-secondary-dark" data-id="${order.ID_Pesanan}" data-status="${nextAction.status}">
+                        ${nextAction.text}
+                    </button>` : ''}
+                </div>
+            `;
+        }).join('');
+        
+        setTimeout(() => {
+            sortedOrders.forEach(order => {
+                if (order.isNew) {
+                    $(`#order-${order.ID_Pesanan}`)?.classList.remove('new-order-pulse');
+                    delete order.isNew;
+                }
             });
-            summaryHTML += '</ul>';
-            paymentSummaryElement.innerHTML = summaryHTML;
+        }, 2500);
+    };
 
-            toggleCartModal();
-            setTimeout(togglePaymentModal, 350);
-        };
+    const renderMenuManager = () => {
+        const tableBody = $('#menu-manager-table');
+        tableBody.innerHTML = AppState.menuItems.map(item => `
+            <tr class="border-b border-secondary-light">
+                <td class="p-3 font-medium">${item.Nama_Produk}</td>
+                <td class="p-3">${item.Kategori}</td>
+                <td class="p-3">${formatCurrency(item.Harga)}</td>
+                <td class="p-3 flex space-x-2">
+                    <button class="edit-item-btn p-1 text-blue-600 hover:text-blue-800" data-id="${item.ID_Menu}">Edit</button>
+                    <button class="delete-item-btn p-1 text-error hover:text-red-700" data-id="${item.ID_Menu}">Delete</button>
+                </td>
+            </tr>
+        `).join('');
+    };
 
-        const handleProofUpload = (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                paymentProofFile = file;
-                uploadLabel.textContent = file.name;
-                sendOrderBtn.disabled = false;
-                sendOrderBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
-                sendOrderBtn.classList.add('bg-green-500', 'hover:bg-green-600');
-            }
-        };
+    const renderSalesDashboard = () => {
+        const today = new Date().toISOString().slice(0, 10);
+        const todaysOrders = AppState.orders.filter(o => o.Timestamp && o.Timestamp.startsWith(today) && o.Status === 'Completed');
         
-        const prepareWhatsAppMessage = () => {
-            if (!paymentProofFile) {
-                alert('Mohon unggah bukti pembayaran terlebih dahulu.');
-                return;
-            }
-            toggleInstructionModal();
-        };
+        const totalSales = todaysOrders.reduce((sum, order) => sum + order.Total_Harga, 0);
+        const orderCount = todaysOrders.length;
+        const avgOrderValue = orderCount > 0 ? totalSales / orderCount : 0;
 
-        // --- INISIALISASI ---
-        document.addEventListener('DOMContentLoaded', () => {
-            renderCategoryFilters();
-            renderMenu();
-            updateCart();
+        $('#sales-total').textContent = formatCurrency(totalSales);
+        $('#sales-orders-count').textContent = orderCount;
+        $('#sales-avg-order').textContent = formatCurrency(avgOrderValue);
 
-            openWhatsappBtn.addEventListener('click', () => {
-                const tableNumber = document.getElementById('table-number').value;
-                let message = `*PESANAN BARU (LUNAS)*\nMeja: *${tableNumber}*\n\n`;
-                let total = 0;
-
-                cart.forEach(cartItem => {
-                    const menuItem = menuData.find(item => item.id === cartItem.id);
-                    message += `- *${cartItem.quantity}x* ${menuItem.name}\n`;
-                    total += menuItem.price * cartItem.quantity;
-                });
-
-                message += `\nTotal: *${formatCurrency(total)}*\n\n`;
-                message += `Pembayaran sudah dilakukan. Mohon lampirkan bukti pembayaran setelah mengirim pesan ini. Terima kasih.`;
-
-                const encodedMessage = encodeURIComponent(message);
-                const whatsappURL = `https://api.whatsapp.com/send?phone=${CAFE_WHATSAPP_NUMBER}&text=${encodedMessage}`;
-                
-                window.open(whatsappURL, '_blank');
-                toggleInstructionModal();
+        const itemCounts = {};
+        todaysOrders.forEach(order => {
+            const detailPesanan = typeof order.Detail_Pesanan === 'string' ? JSON.parse(order.Detail_Pesanan) : order.Detail_Pesanan;
+            detailPesanan.forEach(item => {
+                itemCounts[item.Nama_Produk] = (itemCounts[item.Nama_Produk] || 0) + item.Jumlah;
             });
         });
-    </script>
+
+        const popularItems = Object.entries(itemCounts)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5);
+
+        $('#sales-popular-items').innerHTML = popularItems.length > 0 ? popularItems.map(([name, count]) => `
+            <li class="flex justify-between p-2 bg-secondary-light rounded-md">
+                <span>${name}</span>
+                <span class="font-bold">${count} sold</span>
+            </li>
+        `).join('') : '<li class="text-gray-500">No completed orders today.</li>';
+    };
+
+    // --- LOGIC ---
+    const handleAddToCart = (itemId) => {
+        const existingItem = AppState.cart.find(item => item.id === itemId);
+        if (existingItem) {
+            existingItem.quantity++;
+        } else {
+            AppState.cart.push({ id: itemId, quantity: 1 });
+        }
+        updateCartView();
+    };
+
+    const handleQuantityChange = (itemId, change) => {
+        const cartItem = AppState.cart.find(item => item.id === itemId);
+        if (cartItem) {
+            cartItem.quantity += change;
+            if (cartItem.quantity <= 0) {
+                AppState.cart = AppState.cart.filter(item => item.id !== itemId);
+            }
+        }
+        updateCartView();
+    };
+    
+    const handlePlaceOrder = async () => {
+        const tableNumber = $('#table-number').value;
+        if (!tableNumber) {
+            $('#table-number-error').classList.remove('hidden');
+            return;
+        }
+        $('#table-number-error').classList.add('hidden');
+
+        const total = AppState.cart.reduce((sum, item) => {
+            const menuItem = AppState.menuItems.find(m => m.ID_Menu === item.id);
+            return sum + (menuItem.Harga * item.quantity);
+        }, 0);
+
+        const newOrder = {
+            ID_Pesanan: `PB-ORD-${Date.now()}`,
+            Timestamp: new Date().toISOString(),
+            Nomor_Meja: tableNumber,
+            Detail_Pesanan: AppState.cart.map(cartItem => {
+                const menuItem = AppState.menuItems.find(m => m.ID_Menu === cartItem.id);
+                return {
+                    ID_Menu: menuItem.ID_Menu,
+                    Nama_Produk: menuItem.Nama_Produk,
+                    Jumlah: cartItem.quantity,
+                    Harga_Satuan: menuItem.Harga
+                };
+            }),
+            Total_Harga: total,
+            Status: "Awaiting Confirmation",
+        };
+
+        const result = await callApi('POST', 'addOrder', newOrder);
+        if (result.status === 'success') {
+            AppState.orders.push(result.data);
+            AppState.cart = [];
+            updateCartView();
+            showModal('order-success-modal');
+        }
+    };
+
+    const handleLogin = async () => {
+        const username = $('#username').value;
+        const password = $('#password').value;
+        const errorEl = $('#login-error');
+        
+        const result = await callApi('POST', 'login', { username, password });
+        if (result.status === 'success') {
+            AppState.currentUser = result.data;
+            errorEl.classList.add('hidden');
+            await setupDashboard();
+            showPage('dashboard-page');
+        } else {
+            errorEl.classList.remove('hidden');
+            errorEl.textContent = result.message || "Invalid credentials.";
+        }
+    };
+
+    const handleLogout = () => {
+        AppState.currentUser = null;
+        showPage('customer-menu-page');
+    };
+
+    const setupDashboard = async () => {
+        const { role } = AppState.currentUser;
+        const isOwner = role.toLowerCase() === 'admin' || role.toLowerCase() === 'owner';
+        
+        $('#nav-menu-manager').style.display = isOwner ? 'block' : 'none';
+        $('#nav-sales-dashboard').style.display = isOwner ? 'block' : 'none';
+
+        const ordersResult = await callApi('GET', 'getOrders');
+        if(ordersResult.status === 'success') {
+             AppState.orders = ordersResult.data;
+        }
+        
+        renderOrderQueue();
+        if (isOwner) {
+            renderMenuManager();
+            renderSalesDashboard();
+        }
+        
+        $$('.dashboard-content').forEach(v => v.classList.add('hidden'));
+        $('#orders-view').classList.remove('hidden');
+        $$('.dashboard-nav-btn').forEach(b => b.classList.remove('bg-primary-dark'));
+        $('.dashboard-nav-btn[data-view="orders"]').classList.add('bg-primary-dark');
+    };
+
+    const handleSaveMenuItem = async (e) => {
+        e.preventDefault();
+        const id = $('#menu-item-id').value;
+        const isEditing = !!id;
+        
+        const itemData = {
+            ID_Menu: id || `PBB-NEW-${Date.now()}`,
+            Nama_Produk: $('#menu-item-name').value,
+            Kategori: $('#menu-item-category').value,
+            Harga: parseInt($('#menu-item-price').value),
+            Deskripsi: $('#menu-item-desc').value,
+            Gambar: $('#menu-item-image').value,
+        };
+
+        const action = isEditing ? 'editMenuItem' : 'addMenuItem';
+        const result = await callApi('POST', action, itemData);
+
+        if (result.status === 'success') {
+            if (isEditing) {
+                const index = AppState.menuItems.findIndex(item => item.ID_Menu === id);
+                if(index !== -1) AppState.menuItems[index] = result.data;
+            } else {
+                AppState.menuItems.push(result.data);
+            }
+            hideModal('menu-item-modal');
+            renderMenuManager();
+            renderMenu();
+        }
+    };
+
+    const handleDeleteMenuItem = async () => {
+        const id = AppState.itemToDelete;
+        const result = await callApi('POST', 'deleteMenuItem', { id });
+
+        if (result.status === 'success') {
+            AppState.menuItems = AppState.menuItems.filter(item => item.ID_Menu !== id);
+            AppState.itemToDelete = null;
+            hideModal('delete-confirm-modal');
+            renderMenuManager();
+            renderMenu();
+        }
+    };
+
+    const handleUpdateOrderStatus = async (orderId, newStatus) => {
+        const result = await callApi('POST', 'updateOrderStatus', { id: orderId, status: newStatus });
+        if(result.status === 'success') {
+            const order = AppState.orders.find(o => o.ID_Pesanan === orderId);
+            if(order) {
+                order.Status = newStatus;
+                renderOrderQueue();
+            }
+        }
+    }
+
+    // --- INITIALIZATION ---
+    const initializeApp = async () => {
+        if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA') {
+            $('#loading-text').textContent = "Konfigurasi URL Google Apps Script belum diatur.";
+            return;
+        }
+        const result = await callApi('GET', 'getMenu');
+        if (result.status === 'success') {
+            AppState.menuItems = result.data;
+            renderMenu();
+        } else {
+             $('#loading-text').textContent = `Gagal memuat menu: ${result.message}`;
+        }
+        updateCartView();
+    };
+
+    // --- EVENT LISTENERS ---
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeApp();
+
+        document.body.addEventListener('click', (e) => {
+            const target = e.target;
+            
+            // Customer
+            if (target.closest('.add-to-cart-btn')) handleAddToCart(target.closest('.add-to-cart-btn').dataset.id);
+            if (target.closest('#cart-fab')) { updateCartView(); showPage('cart-page'); }
+            if (target.closest('#back-to-menu-btn')) showPage('customer-menu-page');
+            if (target.closest('.quantity-btn')) handleQuantityChange(target.closest('.quantity-btn').dataset.id, parseInt(target.closest('.quantity-btn').dataset.change));
+            if (target.closest('#checkout-btn')) { renderCheckoutSummary(); showPage('checkout-page'); }
+            if (target.closest('#back-to-cart-btn')) showPage('cart-page');
+            if (target.closest('#place-order-btn')) handlePlaceOrder();
+            if (target.closest('#close-success-modal-btn')) {
+                hideModal('order-success-modal');
+                showPage('customer-menu-page');
+            }
+
+            // Admin Login
+            if (target.closest('#admin-login-button')) showPage('login-page');
+            if (target.closest('#back-to-customer-view-btn')) showPage('customer-menu-page');
+            if (target.closest('#login-btn')) handleLogin();
+            if (target.closest('#logout-btn')) handleLogout();
+
+            // Dashboard
+            if (target.closest('.dashboard-nav-btn')) {
+                const view = target.closest('.dashboard-nav-btn').dataset.view;
+                $$('.dashboard-content').forEach(v => v.classList.add('hidden'));
+                $(`#${view}-view`).classList.remove('hidden');
+                $$('.dashboard-nav-btn').forEach(b => b.classList.remove('bg-primary-dark'));
+                target.closest('.dashboard-nav-btn').classList.add('bg-primary-dark');
+            }
+            if (target.closest('.update-status-btn')) {
+                const btn = target.closest('.update-status-btn');
+                handleUpdateOrderStatus(btn.dataset.id, btn.dataset.status);
+            }
+
+            // Menu Manager
+            if (target.closest('#add-new-item-btn')) {
+                $('#menu-item-form').reset();
+                $('#menu-item-id').value = '';
+                $('#menu-item-modal-title').textContent = 'Add New Item';
+                showModal('menu-item-modal');
+            }
+            if (target.closest('.edit-item-btn')) {
+                const item = AppState.menuItems.find(i => i.ID_Menu === target.closest('.edit-item-btn').dataset.id);
+                if(!item) return;
+                $('#menu-item-id').value = item.ID_Menu;
+                $('#menu-item-name').value = item.Nama_Produk;
+                $('#menu-item-category').value = item.Kategori;
+                $('#menu-item-price').value = item.Harga;
+                $('#menu-item-desc').value = item.Deskripsi;
+                $('#menu-item-image').value = item.Gambar;
+                $('#menu-item-modal-title').textContent = 'Edit Item';
+                showModal('menu-item-modal');
+            }
+            if (target.closest('.delete-item-btn')) {
+                AppState.itemToDelete = target.closest('.delete-item-btn').dataset.id;
+                showModal('delete-confirm-modal');
+            }
+            if (target.closest('#cancel-menu-item-btn')) hideModal('menu-item-modal');
+            if (target.closest('#cancel-delete-btn')) hideModal('delete-confirm-modal');
+            if (target.closest('#confirm-delete-btn')) handleDeleteMenuItem();
+        });
+
+        $('#menu-item-form').addEventListener('submit', handleSaveMenuItem);
+    });
+
+</script>
 </body>
 </html>
 
