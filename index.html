@@ -9,37 +9,23 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #d5e8cf;
-        }
+        body { font-family: 'Poppins', sans-serif; background-color: #d5e8cf; }
         .hidden { display: none; }
-        .page {
-            animation: fadeIn 0.5s ease-in-out;
-        }
+        .page { animation: fadeIn 0.5s ease-in-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.5); display: flex;
+            align-items: center; justify-content: center; z-index: 50;
         }
         .status-pending { background-color: #fef3c7; color: #92400e; }
         .status-awaiting { background-color: #dbeafe; color: #1e40af; }
         .status-preparing { background-color: #fee2e2; color: #991b1b; }
         .status-completed { background-color: #d1fae5; color: #065f46; }
-        .new-order-pulse {
-            animation: pulse 2s infinite;
-        }
+        .new-order-pulse { animation: pulse 2s infinite; }
         @keyframes pulse {
             0%, 100% { box-shadow: 0 0 0 0 rgba(0, 70, 15, 0.7); }
             70% { box-shadow: 0 0 0 10px rgba(0, 70, 15, 0); }
@@ -77,9 +63,7 @@
                 </button>
                 <h1 class="text-2xl font-bold">Your Order</h1>
             </header>
-            <main id="cart-items-container" class="p-4 pb-32">
-                <!-- Cart items will be injected here -->
-            </main>
+            <main id="cart-items-container" class="p-4 pb-32"></main>
             <footer class="fixed bottom-0 left-0 right-0 bg-neutral-light p-4 border-t border-secondary-light shadow-inner">
                 <div class="max-w-7xl mx-auto">
                     <div class="flex justify-between items-center mb-4">
@@ -113,35 +97,43 @@
                     <input type="number" id="table-number" class="w-full p-3 border border-secondary-light rounded-lg text-lg focus:ring-primary-dark focus:border-primary-dark" placeholder="e.g., 5">
                     <p id="table-number-error" class="text-error text-sm mt-1 hidden">Table number is required.</p>
                 </div>
-                 <div class="bg-neutral-light p-6 rounded-lg shadow-md mt-6 flex items-center space-x-4">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=60x60&data=QRIS" alt="QRIS Logo" class="w-12 h-12">
-                    <div>
-                        <h3 class="font-bold text-lg">Payment Method</h3>
-                        <p class="text-neutral-dark/80">Pay with QRIS (at cashier)</p>
-                    </div>
-                </div>
             </main>
             <footer class="fixed bottom-0 left-0 right-0 bg-neutral-light p-4 border-t border-secondary-light shadow-inner">
                 <div class="max-w-7xl mx-auto">
-                    <button id="place-order-btn" class="w-full bg-primary-dark text-neutral-light py-3 rounded-lg font-bold text-lg shadow-md hover:bg-secondary-dark transition-colors">Place Order</button>
+                    <button id="go-to-payment-btn" class="w-full bg-primary-dark text-neutral-light py-3 rounded-lg font-bold text-lg shadow-md hover:bg-secondary-dark transition-colors">Continue to Payment</button>
                 </div>
             </footer>
         </div>
+        
+        <!-- Customer: Payment View -->
+        <div id="payment-page" class="page hidden">
+            <header class="bg-primary-dark text-neutral-light p-4 shadow-lg">
+                <h1 class="text-2xl font-bold text-center">Scan to Pay</h1>
+            </header>
+            <main class="p-6 text-center">
+                <div class="bg-neutral-light p-6 rounded-lg shadow-md inline-block">
+                    <p class="mb-2">Total Amount:</p>
+                    <p id="payment-total" class="text-4xl font-bold text-primary-dark mb-4">Rp 0</p>
+                    <img id="qris-image" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=DefaultQRIS" alt="QRIS Code" class="mx-auto rounded-lg">
+                    <p class="mt-4 text-sm text-neutral-dark/80">Scan this QR code with your payment app.</p>
+                </div>
+                <div id="upload-section" class="mt-6">
+                    <p class="mb-4 text-lg">After paying, please take a screenshot.</p>
+                    <button id="send-to-whatsapp-btn" class="w-full max-w-sm mx-auto bg-secondary-dark text-neutral-light py-3 rounded-lg font-bold text-lg shadow-md hover:bg-neutral-dark transition-colors">
+                        I Have Paid, Send Order to WhatsApp
+                    </button>
+                </div>
+            </main>
+        </div>
 
-        <!-- Admin: Login View -->
+        <!-- Admin: Login View & Dashboard -->
         <div id="login-page" class="page hidden">
             <div class="min-h-screen flex items-center justify-center bg-secondary-light">
                 <div class="bg-neutral-light p-8 rounded-lg shadow-2xl w-full max-w-sm">
                     <h2 class="text-3xl font-bold text-center text-primary-dark mb-6">PayBoss Dashboard</h2>
                     <div class="space-y-4">
-                        <div>
-                            <label for="username" class="block text-sm font-medium">Username</label>
-                            <input type="text" id="username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-dark focus:border-primary-dark">
-                        </div>
-                        <div>
-                            <label for="password" class="block text-sm font-medium">Password</label>
-                            <input type="password" id="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-dark focus:border-primary-dark">
-                        </div>
+                        <div><label for="username" class="block text-sm font-medium">Username</label><input type="text" id="username" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-dark focus:border-primary-dark"></div>
+                        <div><label for="password" class="block text-sm font-medium">Password</label><input type="password" id="password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-dark focus:border-primary-dark"></div>
                         <p id="login-error" class="text-error text-sm hidden">Invalid credentials.</p>
                         <button id="login-btn" class="w-full bg-primary-dark text-neutral-light py-2 rounded-lg font-bold hover:bg-secondary-dark transition-colors">Login</button>
                         <button id="back-to-customer-view-btn" class="w-full mt-2 text-sm text-primary-dark hover:underline">Back to Menu</button>
@@ -149,8 +141,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Admin: Dashboard View -->
         <div id="dashboard-page" class="page hidden">
             <div class="flex flex-col md:flex-row min-h-screen bg-secondary-light">
                 <nav class="bg-secondary-dark text-neutral-light w-full md:w-64 p-4 md:p-6 flex-shrink-0">
@@ -158,57 +148,12 @@
                     <ul class="space-y-2">
                         <li><button data-view="orders" class="dashboard-nav-btn w-full text-left p-3 rounded-md bg-primary-dark">Order Queue</button></li>
                         <li id="nav-menu-manager"><button data-view="menu" class="dashboard-nav-btn w-full text-left p-3 rounded-md hover:bg-neutral-dark transition-colors">Menu Manager</button></li>
-                        <li id="nav-sales-dashboard"><button data-view="sales" class="dashboard-nav-btn w-full text-left p-3 rounded-md hover:bg-neutral-dark transition-colors">Sales Dashboard</button></li>
                     </ul>
-                    <div class="mt-auto pt-8">
-                          <button id="logout-btn" class="w-full text-left p-3 rounded-md hover:bg-neutral-dark transition-colors">Logout</button>
-                    </div>
+                    <div class="mt-auto pt-8"><button id="logout-btn" class="w-full text-left p-3 rounded-md hover:bg-neutral-dark transition-colors">Logout</button></div>
                 </nav>
                 <main class="flex-1 p-4 md:p-8 overflow-y-auto">
-                    <div id="orders-view" class="dashboard-content">
-                        <h1 class="text-3xl font-bold mb-6">Active Orders</h1>
-                        <div id="order-queue-container" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"></div>
-                    </div>
-                    <div id="menu-view" class="dashboard-content hidden">
-                        <div class="flex justify-between items-center mb-6">
-                            <h1 class="text-3xl font-bold">Menu Management</h1>
-                            <button id="add-new-item-btn" class="bg-primary-dark text-neutral-light px-4 py-2 rounded-md font-semibold hover:bg-secondary-dark transition-colors">Add New Item</button>
-                        </div>
-                        <div class="bg-neutral-light shadow-md rounded-lg overflow-x-auto">
-                            <table class="w-full text-sm text-left">
-                                <thead class="bg-secondary-light uppercase">
-                                    <tr>
-                                        <th class="p-3">Product</th>
-                                        <th class="p-3">Category</th>
-                                        <th class="p-3">Price</th>
-                                        <th class="p-3">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="menu-manager-table"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                    <div id="sales-view" class="dashboard-content hidden">
-                        <h1 class="text-3xl font-bold mb-6">Sales Dashboard</h1>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div class="bg-neutral-light p-6 rounded-lg shadow-md">
-                                <h3 class="text-lg font-semibold text-neutral-dark/80">Total Sales Today</h3>
-                                <p id="sales-total" class="text-4xl font-bold text-primary-dark mt-2">Rp 0</p>
-                            </div>
-                            <div class="bg-neutral-light p-6 rounded-lg shadow-md">
-                                <h3 class="text-lg font-semibold text-neutral-dark/80">Orders Today</h3>
-                                <p id="sales-orders-count" class="text-4xl font-bold text-primary-dark mt-2">0</p>
-                            </div>
-                            <div class="bg-neutral-light p-6 rounded-lg shadow-md">
-                                <h3 class="text-lg font-semibold text-neutral-dark/80">Average Order Value</h3>
-                                <p id="sales-avg-order" class="text-4xl font-bold text-primary-dark mt-2">Rp 0</p>
-                            </div>
-                        </div>
-                        <div class="mt-8 bg-neutral-light p-6 rounded-lg shadow-md">
-                            <h3 class="text-xl font-bold mb-4">Most Popular Items</h3>
-                            <ul id="sales-popular-items" class="space-y-2"></ul>
-                        </div>
-                    </div>
+                    <div id="orders-view" class="dashboard-content"><h1 class="text-3xl font-bold mb-6">Active Orders</h1><div id="order-queue-container" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6"></div></div>
+                    <div id="menu-view" class="dashboard-content hidden"><div class="flex justify-between items-center mb-6"><h1 class="text-3xl font-bold">Menu Management</h1><button id="add-new-item-btn" class="bg-primary-dark text-neutral-light px-4 py-2 rounded-md font-semibold hover:bg-secondary-dark transition-colors">Add New Item</button></div><div class="bg-neutral-light shadow-md rounded-lg overflow-x-auto"><table class="w-full text-sm text-left"><thead class="bg-secondary-light uppercase"><tr><th class="p-3">Product</th><th class="p-3">Category</th><th class="p-3">Price</th><th class="p-3">Actions</th></tr></thead><tbody id="menu-manager-table"></tbody></table></div></div>
                 </main>
             </div>
         </div>
@@ -216,112 +161,45 @@
     </div>
 
     <!-- Modals -->
-     <div id="order-success-modal" class="modal-overlay hidden">
-        <div class="bg-neutral-light p-8 rounded-lg shadow-xl text-center max-w-sm m-4">
-             <h3 class="text-2xl font-bold text-primary-dark mb-4">Pesanan Terkirim!</h3>
-             <p class="mb-6">Pesanan Anda telah dikirim ke dapur. Silakan lakukan pembayaran di kasir.</p>
-             <button id="close-success-modal-btn" class="w-full bg-primary-dark text-neutral-light py-2 rounded-lg font-bold">Selesai</button>
-        </div>
-    </div>
-    
-    <div id="menu-item-modal" class="modal-overlay hidden">
-        <div class="bg-neutral-light p-6 rounded-lg shadow-xl w-full max-w-md m-4">
-            <h3 id="menu-item-modal-title" class="text-xl font-bold mb-4">Add New Item</h3>
-            <form id="menu-item-form" class="space-y-4">
-                <input type="hidden" id="menu-item-id">
-                <div>
-                    <label for="menu-item-name" class="block text-sm font-medium">Product Name</label>
-                    <input type="text" id="menu-item-name" class="mt-1 w-full p-2 border rounded-md" required>
-                </div>
-                <div>
-                    <label for="menu-item-category" class="block text-sm font-medium">Category</label>
-                    <input type="text" id="menu-item-category" class="mt-1 w-full p-2 border rounded-md" required>
-                </div>
-                <div>
-                    <label for="menu-item-price" class="block text-sm font-medium">Price</label>
-                    <input type="number" id="menu-item-price" class="mt-1 w-full p-2 border rounded-md" required>
-                </div>
-                <div>
-                    <label for="menu-item-desc" class="block text-sm font-medium">Description</label>
-                    <textarea id="menu-item-desc" rows="3" class="mt-1 w-full p-2 border rounded-md" required></textarea>
-                </div>
-                <div>
-                    <label for="menu-item-image" class="block text-sm font-medium">Image URL</label>
-                    <input type="text" id="menu-item-image" class="mt-1 w-full p-2 border rounded-md" required>
-                </div>
-                <div class="flex justify-end space-x-4 pt-4">
-                    <button type="button" id="cancel-menu-item-btn" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Cancel</button>
-                    <button type="submit" class="px-4 py-2 rounded-md bg-primary-dark text-neutral-light hover:bg-secondary-dark">Save Item</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="delete-confirm-modal" class="modal-overlay hidden">
-        <div class="bg-neutral-light p-6 rounded-lg shadow-xl w-full max-w-sm m-4">
-            <h3 class="text-xl font-bold mb-4">Confirm Deletion</h3>
-            <p class="mb-6">Are you sure you want to delete this item? This action cannot be undone.</p>
+     <div id="whatsapp-confirm-modal" class="modal-overlay hidden">
+        <div class="bg-neutral-light p-6 rounded-lg shadow-xl w-full max-w-sm m-4 text-center">
+            <h3 class="text-xl font-bold mb-4">One Last Step</h3>
+            <p class="mb-6">WhatsApp will open with your order summary. Please **manually attach your payment screenshot** before sending.</p>
             <div class="flex justify-end space-x-4">
-                <button id="cancel-delete-btn" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Cancel</button>
-                <button id="confirm-delete-btn" class="px-4 py-2 rounded-md bg-error text-neutral-light hover:bg-red-700">Delete</button>
+                <button id="cancel-whatsapp-btn" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Cancel</button>
+                <button id="confirm-whatsapp-btn" class="px-4 py-2 rounded-md bg-primary-dark text-neutral-light hover:bg-secondary-dark">Continue to WhatsApp</button>
             </div>
         </div>
     </div>
+    
+    <div id="menu-item-modal" class="modal-overlay hidden"><div class="bg-neutral-light p-6 rounded-lg shadow-xl w-full max-w-md m-4"><h3 id="menu-item-modal-title" class="text-xl font-bold mb-4">Add New Item</h3><form id="menu-item-form" class="space-y-4"><input type="hidden" id="menu-item-id"><div><label for="menu-item-name" class="block text-sm font-medium">Product Name</label><input type="text" id="menu-item-name" class="mt-1 w-full p-2 border rounded-md" required></div><div><label for="menu-item-category" class="block text-sm font-medium">Category</label><input type="text" id="menu-item-category" class="mt-1 w-full p-2 border rounded-md" required></div><div><label for="menu-item-price" class="block text-sm font-medium">Price</label><input type="number" id="menu-item-price" class="mt-1 w-full p-2 border rounded-md" required></div><div><label for="menu-item-desc" class="block text-sm font-medium">Description</label><textarea id="menu-item-desc" rows="3" class="mt-1 w-full p-2 border rounded-md" required></textarea></div><div><label for="menu-item-image" class="block text-sm font-medium">Image URL</label><input type="text" id="menu-item-image" class="mt-1 w-full p-2 border rounded-md" required></div><div class="flex justify-end space-x-4 pt-4"><button type="button" id="cancel-menu-item-btn" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Cancel</button><button type="submit" class="px-4 py-2 rounded-md bg-primary-dark text-neutral-light hover:bg-secondary-dark">Save Item</button></div></form></div></div>
+    <div id="delete-confirm-modal" class="modal-overlay hidden"><div class="bg-neutral-light p-6 rounded-lg shadow-xl w-full max-w-sm m-4"><h3 class="text-xl font-bold mb-4">Confirm Deletion</h3><p class="mb-6">Are you sure you want to delete this item? This action cannot be undone.</p><div class="flex justify-end space-x-4"><button id="cancel-delete-btn" class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Cancel</button><button id="confirm-delete-btn" class="px-4 py-2 rounded-md bg-error text-neutral-light hover:bg-red-700">Delete</button></div></div></div>
 
 <script>
     // --- KONFIGURASI ---
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwiJjEcAE7PL-GmTRacrWx9gJmmfDcPjBVlhxQhd4Hrbfq9hvxA620B6b8gTlqPYG2s/exec';
+    const WHATSAPP_NUMBER = '6285349972513';
+    const QRIS_IMAGE_URL = 'https://placehold.co/250x250/FFFFFF/000000?text=Scan+QRIS+Anda'; // <-- GANTI DENGAN URL GAMBAR QRIS ANDA
 
     // --- TAILWIND CONFIG ---
-    tailwind.config = {
-        theme: {
-            extend: {
-                colors: {
-                    primary: { dark: '#00460f', light: '#ecffe4' },
-                    secondary: { dark: '#303f2e', light: '#e4f6dc' },
-                    background: '#d5e8cf',
-                    error: '#de3730',
-                    neutral: { dark: '#3a3c38', light: '#f9faf4' },
-                }
-            }
-        }
-    };
+    tailwind.config = { theme: { extend: { colors: { primary: { dark: '#00460f', light: '#ecffe4' }, secondary: { dark: '#303f2e', light: '#e4f6dc' }, background: '#d5e8cf', error: '#de3730', neutral: { dark: '#3a3c38', light: '#f9faf4' } } } } };
 
     // --- APP STATE ---
-    const AppState = {
-        menuItems: [],
-        orders: [],
-        cart: [],
-        currentUser: null,
-        itemToDelete: null,
-    };
+    const AppState = { menuItems: [], orders: [], cart: [], currentUser: null, itemToDelete: null, currentOrderForPayment: null };
 
     // --- UTILS ---
     const formatCurrency = (amount) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(amount);
     const $ = (selector) => document.querySelector(selector);
     const $$ = (selector) => document.querySelectorAll(selector);
-
-    const showPage = (pageId) => {
-        $$('.page').forEach(p => p.classList.add('hidden'));
-        $(`#${pageId}`).classList.remove('hidden');
-        window.scrollTo(0, 0);
-    };
-    
+    const showPage = (pageId) => { $$('.page').forEach(p => p.classList.add('hidden')); $(`#${pageId}`).classList.remove('hidden'); window.scrollTo(0, 0); };
     const showModal = (modalId) => $(`#${modalId}`).classList.remove('hidden');
     const hideModal = (modalId) => $(`#${modalId}`).classList.add('hidden');
 
     // --- API CALLS ---
     const callApi = async (method, action, payload) => {
         const url = `${APPS_SCRIPT_URL}${method === 'GET' ? `?action=${action}` : ''}`;
-        const options = {
-            method: method,
-            redirect: 'follow', // Penting untuk Apps Script
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Diubah agar kompatibel
-        };
-        if (method === 'POST') {
-            options.body = JSON.stringify({ action, payload });
-        }
-        
+        const options = { method: method, redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, };
+        if (method === 'POST') options.body = JSON.stringify({ action, payload });
         try {
             const response = await fetch(url, options);
             if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -336,458 +214,115 @@
     };
     
     // --- RENDER FUNCTIONS ---
-    const renderMenu = () => {
+    const renderMenu = () => { /* ... fungsi tidak berubah ... */
         const menuContainer = $('#menu-container');
-        if (AppState.menuItems.length === 0) {
-           $('#loading-text').textContent = 'Menu belum tersedia.';
-            return;
-        }
-         $('#loading-text').classList.add('hidden');
+        if (AppState.menuItems.length === 0) { $('#loading-text').textContent = 'Menu belum tersedia.'; return; }
+        $('#loading-text').classList.add('hidden');
         const categories = [...new Set(AppState.menuItems.map(item => item.Kategori))];
-        menuContainer.innerHTML = categories.map(category => `
-            <div class="mb-8">
-                <h2 class="text-2xl font-bold mb-4 border-b-2 border-primary-dark pb-2">${category}</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    ${AppState.menuItems.filter(item => item.Kategori === category).map(item => `
-                        <div class="bg-neutral-light rounded-lg shadow-md overflow-hidden flex flex-col">
-                            <img src="${item.Gambar}" alt="${item.Nama_Produk}" class="w-full h-48 object-cover">
-                            <div class="p-4 flex flex-col flex-grow">
-                                <h3 class="text-xl font-bold">${item.Nama_Produk}</h3>
-                                <p class="text-neutral-dark/80 text-sm my-2 flex-grow">${item.Deskripsi}</p>
-                                <div class="flex justify-between items-center mt-4">
-                                    <span class="text-lg font-semibold text-primary-dark">${formatCurrency(item.Harga)}</span>
-                                    <button class="add-to-cart-btn bg-primary-dark text-neutral-light px-4 py-2 rounded-md font-semibold hover:bg-secondary-dark transition-colors" data-id="${item.ID_Menu}">Add</button>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `).join('');
+        menuContainer.innerHTML = categories.map(category => `<div class="mb-8"><h2 class="text-2xl font-bold mb-4 border-b-2 border-primary-dark pb-2">${category}</h2><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">${AppState.menuItems.filter(item => item.Kategori === category).map(item => `<div class="bg-neutral-light rounded-lg shadow-md overflow-hidden flex flex-col"><img src="${item.Gambar}" alt="${item.Nama_Produk}" class="w-full h-48 object-cover"><div class="p-4 flex flex-col flex-grow"><h3 class="text-xl font-bold">${item.Nama_Produk}</h3><p class="text-neutral-dark/80 text-sm my-2 flex-grow">${item.Deskripsi}</p><div class="flex justify-between items-center mt-4"><span class="text-lg font-semibold text-primary-dark">${formatCurrency(item.Harga)}</span><button class="add-to-cart-btn bg-primary-dark text-neutral-light px-4 py-2 rounded-md font-semibold hover:bg-secondary-dark transition-colors" data-id="${item.ID_Menu}">Add</button></div></div></div>`).join('')}</div></div>`).join('');
     };
-
-    const updateCartView = () => {
-        const cartItemsContainer = $('#cart-items-container');
-        const cartCount = $('#cart-count');
-        const cartTotalEl = $('#cart-total');
-        const checkoutBtn = $('#checkout-btn');
-
-        const totalItems = AppState.cart.reduce((sum, item) => sum + item.quantity, 0);
-        cartCount.textContent = totalItems;
-        $('#cart-fab-container').classList.toggle('hidden', totalItems === 0);
-
-        if (AppState.cart.length === 0) {
-            cartItemsContainer.innerHTML = `<p class="text-center text-gray-500 mt-8">Your cart is empty.</p>`;
-            checkoutBtn.disabled = true;
-        } else {
-            cartItemsContainer.innerHTML = AppState.cart.map(cartItem => {
-                const menuItem = AppState.menuItems.find(m => m.ID_Menu === cartItem.id);
-                if (!menuItem) return '';
-                return `
-                    <div class="flex items-center justify-between bg-neutral-light p-4 rounded-lg shadow-sm mb-4">
-                        <div>
-                            <p class="font-bold text-lg">${menuItem.Nama_Produk}</p>
-                            <p class="text-primary-dark font-semibold">${formatCurrency(menuItem.Harga * cartItem.quantity)}</p>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <button class="quantity-btn bg-secondary-light w-8 h-8 rounded-full font-bold" data-id="${cartItem.id}" data-change="-1">-</button>
-                            <span class="text-lg font-semibold w-8 text-center">${cartItem.quantity}</span>
-                            <button class="quantity-btn bg-secondary-light w-8 h-8 rounded-full font-bold" data-id="${cartItem.id}" data-change="1">+</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            checkoutBtn.disabled = false;
-        }
-
-        const total = AppState.cart.reduce((sum, item) => {
-            const menuItem = AppState.menuItems.find(m => m.ID_Menu === item.id);
-            return sum + (menuItem ? menuItem.Harga * item.quantity : 0);
-        }, 0);
-        cartTotalEl.textContent = formatCurrency(total);
+    const updateCartView = () => { /* ... fungsi tidak berubah ... */
+        const cartItemsContainer=$("#cart-items-container"),cartCount=$("#cart-count"),cartTotalEl=$("#cart-total"),checkoutBtn=$("#checkout-btn"),totalItems=AppState.cart.reduce((a,b)=>a+b.quantity,0);cartCount.textContent=totalItems,$("#cart-fab-container").classList.toggle("hidden",0===totalItems),0===AppState.cart.length?(cartItemsContainer.innerHTML='<p class="text-center text-gray-500 mt-8">Your cart is empty.</p>',checkoutBtn.disabled=!0):(cartItemsContainer.innerHTML=AppState.cart.map(a=>{const b=AppState.menuItems.find(b=>b.ID_Menu===a.id);return b?`\n<div class="flex items-center justify-between bg-neutral-light p-4 rounded-lg shadow-sm mb-4"><div><p class="font-bold text-lg">${b.Nama_Produk}</p><p class="text-primary-dark font-semibold">${formatCurrency(b.Harga*a.quantity)}</p></div><div class="flex items-center space-x-3"><button class="quantity-btn bg-secondary-light w-8 h-8 rounded-full font-bold" data-id="${a.id}" data-change="-1">-</button><span class="text-lg font-semibold w-8 text-center">${a.quantity}</span><button class="quantity-btn bg-secondary-light w-8 h-8 rounded-full font-bold" data-id="${a.id}" data-change="1">+</button></div></div>`:""}).join(""),checkoutBtn.disabled=!1);const total=AppState.cart.reduce((a,b)=>{const c=AppState.menuItems.find(a=>a.ID_Menu===b.id);return a+(c?c.Harga*b.quantity:0)},0);cartTotalEl.textContent=formatCurrency(total);
     };
-    
-    const renderCheckoutSummary = () => {
-        const summaryContainer = $('#checkout-summary');
-        const totalEl = $('#checkout-total');
-        
-        summaryContainer.innerHTML = AppState.cart.map(cartItem => {
-            const menuItem = AppState.menuItems.find(m => m.ID_Menu === cartItem.id);
-             if (!menuItem) return '';
-            return `
-                <div class="flex justify-between">
-                    <span>${cartItem.quantity}x ${menuItem.Nama_Produk}</span>
-                    <span>${formatCurrency(menuItem.Harga * cartItem.quantity)}</span>
-                </div>
-            `;
-        }).join('');
-
-        const total = AppState.cart.reduce((sum, item) => {
-            const menuItem = AppState.menuItems.find(m => m.ID_Menu === item.id);
-            return sum + (menuItem ? menuItem.Harga * item.quantity : 0);
-        }, 0);
-        totalEl.textContent = formatCurrency(total);
+    const renderCheckoutSummary = () => { /* ... fungsi tidak berubah ... */
+        const summaryContainer=$("#checkout-summary"),totalEl=$("#checkout-total");summaryContainer.innerHTML=AppState.cart.map(a=>{const b=AppState.menuItems.find(b=>b.ID_Menu===a.id);return b?`\n<div class="flex justify-between"><span>${a.quantity}x ${b.Nama_Produk}</span><span>${formatCurrency(b.Harga*a.quantity)}</span></div>`:""}).join("");const total=AppState.cart.reduce((a,b)=>{const c=AppState.menuItems.find(a=>a.ID_Menu===b.id);return a+(c?c.Harga*b.quantity:0)},0);totalEl.textContent=formatCurrency(total);
     };
-
-    const renderOrderQueue = () => {
-        const container = $('#order-queue-container');
-        const sortedOrders = AppState.orders
-            .filter(o => o.Status !== 'Completed')
-            .sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp));
-        
-        if (sortedOrders.length === 0) {
-            container.innerHTML = `<p class="text-center text-gray-500 col-span-full">No active orders.</p>`;
-            return;
-        }
-
-        container.innerHTML = sortedOrders.map(order => {
-            const statusClass = {
-                "Pending Payment": "status-pending",
-                "Awaiting Confirmation": "status-awaiting",
-                "Preparing": "status-preparing",
-                "Completed": "status-completed"
-            }[order.Status] || "bg-gray-200";
-
-            const nextAction = {
-                "Pending Payment": { text: "Confirm Payment", status: "Awaiting Confirmation" },
-                "Awaiting Confirmation": { text: "Prepare Order", status: "Preparing" },
-                "Preparing": { text: "Mark as Completed", status: "Completed" },
-            }[order.Status];
-            
-            let detailPesanan;
-            try {
-                 detailPesanan = typeof order.Detail_Pesanan === 'string' ? JSON.parse(order.Detail_Pesanan) : order.Detail_Pesanan;
-            } catch (e) {
-                detailPesanan = [{Jumlah: 'N/A', Nama_Produk: 'Invalid order details'}];
-            }
-
-
-            return `
-                <div class="bg-neutral-light p-4 rounded-lg shadow-md flex flex-col ${order.isNew ? 'new-order-pulse' : ''}" id="order-${order.ID_Pesanan}">
-                    <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-bold text-lg">Table ${order.Nomor_Meja}</h3>
-                        <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${order.Status}</span>
-                    </div>
-                    <p class="text-xs text-gray-500 mb-3">${order.ID_Pesanan} - ${new Date(order.Timestamp).toLocaleTimeString()}</p>
-                    <ul class="space-y-1 text-sm border-t border-b border-secondary-light py-2 my-2 flex-grow">
-                        ${detailPesanan.map(item => `<li>${item.Jumlah}x ${item.Nama_Produk}</li>`).join('')}
-                    </ul>
-                    <div class="flex justify-between items-center font-bold mt-2">
-                        <span>Total:</span>
-                        <span>${formatCurrency(order.Total_Harga)}</span>
-                    </div>
-                    ${nextAction ? `
-                    <button class="update-status-btn mt-4 w-full bg-primary-dark text-neutral-light py-2 rounded-md font-semibold hover:bg-secondary-dark" data-id="${order.ID_Pesanan}" data-status="${nextAction.status}">
-                        ${nextAction.text}
-                    </button>` : ''}
-                </div>
-            `;
-        }).join('');
-        
-        setTimeout(() => {
-            sortedOrders.forEach(order => {
-                if (order.isNew) {
-                    $(`#order-${order.ID_Pesanan}`)?.classList.remove('new-order-pulse');
-                    delete order.isNew;
-                }
-            });
-        }, 2500);
-    };
-
-    const renderMenuManager = () => {
-        const tableBody = $('#menu-manager-table');
-        tableBody.innerHTML = AppState.menuItems.map(item => `
-            <tr class="border-b border-secondary-light">
-                <td class="p-3 font-medium">${item.Nama_Produk}</td>
-                <td class="p-3">${item.Kategori}</td>
-                <td class="p-3">${formatCurrency(item.Harga)}</td>
-                <td class="p-3 flex space-x-2">
-                    <button class="edit-item-btn p-1 text-blue-600 hover:text-blue-800" data-id="${item.ID_Menu}">Edit</button>
-                    <button class="delete-item-btn p-1 text-error hover:text-red-700" data-id="${item.ID_Menu}">Delete</button>
-                </td>
-            </tr>
-        `).join('');
-    };
-
-    const renderSalesDashboard = () => {
-        const today = new Date().toISOString().slice(0, 10);
-        const todaysOrders = AppState.orders.filter(o => o.Timestamp && o.Timestamp.startsWith(today) && o.Status === 'Completed');
-        
-        const totalSales = todaysOrders.reduce((sum, order) => sum + order.Total_Harga, 0);
-        const orderCount = todaysOrders.length;
-        const avgOrderValue = orderCount > 0 ? totalSales / orderCount : 0;
-
-        $('#sales-total').textContent = formatCurrency(totalSales);
-        $('#sales-orders-count').textContent = orderCount;
-        $('#sales-avg-order').textContent = formatCurrency(avgOrderValue);
-
-        const itemCounts = {};
-        todaysOrders.forEach(order => {
-            const detailPesanan = typeof order.Detail_Pesanan === 'string' ? JSON.parse(order.Detail_Pesanan) : order.Detail_Pesanan;
-            detailPesanan.forEach(item => {
-                itemCounts[item.Nama_Produk] = (itemCounts[item.Nama_Produk] || 0) + item.Jumlah;
-            });
-        });
-
-        const popularItems = Object.entries(itemCounts)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 5);
-
-        $('#sales-popular-items').innerHTML = popularItems.length > 0 ? popularItems.map(([name, count]) => `
-            <li class="flex justify-between p-2 bg-secondary-light rounded-md">
-                <span>${name}</span>
-                <span class="font-bold">${count} sold</span>
-            </li>
-        `).join('') : '<li class="text-gray-500">No completed orders today.</li>';
-    };
+    const renderOrderQueue = () => { const container = $('#order-queue-container'); const sortedOrders = AppState.orders.filter(o => o.Status !== 'Completed').sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp)); if (sortedOrders.length === 0) { container.innerHTML = `<p class="text-center text-gray-500 col-span-full">No active orders.</p>`; return; } container.innerHTML = sortedOrders.map(order => { const statusClass = {"Awaiting Confirmation":"status-awaiting","Preparing":"status-preparing"}[order.Status] || "bg-gray-200"; const nextAction = {"Awaiting Confirmation":{text:"Prepare Order",status:"Preparing"},"Preparing":{text:"Mark as Completed",status:"Completed"}}[order.Status]; let detailPesanan; try { detailPesanan = typeof order.Detail_Pesanan === 'string' ? JSON.parse(order.Detail_Pesanan) : order.Detail_Pesanan; } catch (e) { detailPesanan = [{Jumlah: 'N/A', Nama_Produk: 'Invalid'}]; } const proofLink = order.Link_Bukti_Baya ? `<a href="${order.Link_Bukti_Baya}" target="_blank" class="text-blue-600 hover:underline text-sm mt-2 block">View Payment Proof</a>` : ''; return ` <div class="bg-neutral-light p-4 rounded-lg shadow-md flex flex-col ${order.isNew ? 'new-order-pulse' : ''}" id="order-${order.ID_Pesanan}"><div class="flex justify-between items-start mb-2"><h3 class="font-bold text-lg">Table ${order.Nomor_Meja}</h3><span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${order.Status}</span></div><p class="text-xs text-gray-500 mb-3">${order.ID_Pesanan} - ${new Date(order.Timestamp).toLocaleTimeString()}</p><ul class="space-y-1 text-sm border-t border-b border-secondary-light py-2 my-2 flex-grow">${detailPesanan.map(item => `<li>${item.Jumlah}x ${item.Nama_Produk}</li>`).join('')}</ul><div class="flex justify-between items-center font-bold mt-2"><span>Total:</span><span>${formatCurrency(order.Total_Harga)}</span></div> ${proofLink} ${nextAction ? `<button class="update-status-btn mt-4 w-full bg-primary-dark text-neutral-light py-2 rounded-md font-semibold hover:bg-secondary-dark" data-id="${order.ID_Pesanan}" data-status="${nextAction.status}">${nextAction.text}</button>` : ''}</div>`; }).join(''); setTimeout(() => { sortedOrders.forEach(order => { if (order.isNew) { $(`#order-${order.ID_Pesanan}`)?.classList.remove('new-order-pulse'); delete order.isNew; } }); }, 2500); };
+    const renderMenuManager = () => { const tableBody=$("#menu-manager-table");tableBody.innerHTML=AppState.menuItems.map(a=>`\n<tr class="border-b border-secondary-light"><td class="p-3 font-medium">${a.Nama_Produk}</td><td class="p-3">${a.Kategori}</td><td class="p-3">${formatCurrency(a.Harga)}</td><td class="p-3 flex space-x-2"><button class="edit-item-btn p-1 text-blue-600 hover:text-blue-800" data-id="${a.ID_Menu}">Edit</button><button class="delete-item-btn p-1 text-error hover:text-red-700" data-id="${a.ID_Menu}">Delete</button></td></tr>`).join(""); };
 
     // --- LOGIC ---
-    const handleAddToCart = (itemId) => {
-        const existingItem = AppState.cart.find(item => item.id === itemId);
-        if (existingItem) {
-            existingItem.quantity++;
-        } else {
-            AppState.cart.push({ id: itemId, quantity: 1 });
-        }
-        updateCartView();
-    };
-
-    const handleQuantityChange = (itemId, change) => {
-        const cartItem = AppState.cart.find(item => item.id === itemId);
-        if (cartItem) {
-            cartItem.quantity += change;
-            if (cartItem.quantity <= 0) {
-                AppState.cart = AppState.cart.filter(item => item.id !== itemId);
-            }
-        }
-        updateCartView();
-    };
-    
-    const handlePlaceOrder = async () => {
+    const handleGoToPayment = () => {
         const tableNumber = $('#table-number').value;
-        if (!tableNumber) {
-            $('#table-number-error').classList.remove('hidden');
-            return;
-        }
+        if (!tableNumber) { $('#table-number-error').classList.remove('hidden'); return; }
         $('#table-number-error').classList.add('hidden');
-
         const total = AppState.cart.reduce((sum, item) => {
             const menuItem = AppState.menuItems.find(m => m.ID_Menu === item.id);
             return sum + (menuItem.Harga * item.quantity);
         }, 0);
-
-        const newOrder = {
-            ID_Pesanan: `PB-ORD-${Date.now()}`,
-            Timestamp: new Date().toISOString(),
-            Nomor_Meja: tableNumber,
+        AppState.currentOrderForPayment = {
+            ID_Pesanan: `PB-ORD-${Date.now()}`, Timestamp: new Date().toISOString(), Nomor_Meja: tableNumber,
             Detail_Pesanan: AppState.cart.map(cartItem => {
                 const menuItem = AppState.menuItems.find(m => m.ID_Menu === cartItem.id);
-                return {
-                    ID_Menu: menuItem.ID_Menu,
-                    Nama_Produk: menuItem.Nama_Produk,
-                    Jumlah: cartItem.quantity,
-                    Harga_Satuan: menuItem.Harga
-                };
+                return { ID_Menu: menuItem.ID_Menu, Nama_Produk: menuItem.Nama_Produk, Jumlah: cartItem.quantity, Harga_Satuan: menuItem.Harga };
             }),
-            Total_Harga: total,
-            Status: "Awaiting Confirmation",
+            Total_Harga: total, Status: "Awaiting Confirmation", Link_Bukti_Baya: "via WhatsApp", isNew: true
         };
+        $('#payment-total').textContent = formatCurrency(total);
+        showPage('payment-page');
+    };
+    const handleWhatsAppConfirmation = async () => {
+        const order = AppState.currentOrderForPayment;
+        if (!order) return;
 
-        const result = await callApi('POST', 'addOrder', newOrder);
+        // 1. Simpan ke Google Sheet
+        const result = await callApi('POST', 'addOrder', order);
+
         if (result.status === 'success') {
+            // 2. Jika berhasil, siapkan pesan dan buka WhatsApp
             AppState.orders.push(result.data);
+            if (AppState.currentUser) renderOrderQueue();
+            
+            let message = `*PESANAN BARU (LUNAS)*\n\n`;
+            message += `*Meja:* ${order.Nomor_Meja}\n*ID Pesanan:* ${order.ID_Pesanan}\n\n`;
+            message += order.Detail_Pesanan.map(item => `• ${item.Jumlah}x ${item.Nama_Produk}`).join('\n');
+            message += `\n\n*Total:* ${formatCurrency(order.Total_Harga)}`;
+            message += `\n\n_Mohon lampirkan bukti pembayaran setelah mengirim pesan ini._`;
+            
+            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+            
+            // 3. Reset alur
             AppState.cart = [];
+            AppState.currentOrderForPayment = null;
             updateCartView();
-            showModal('order-success-modal');
-        }
-    };
-
-    const handleLogin = async () => {
-        const username = $('#username').value;
-        const password = $('#password').value;
-        const errorEl = $('#login-error');
-        
-        const result = await callApi('POST', 'login', { username, password });
-        if (result.status === 'success') {
-            AppState.currentUser = result.data;
-            errorEl.classList.add('hidden');
-            await setupDashboard();
-            showPage('dashboard-page');
+            hideModal('whatsapp-confirm-modal');
+            showPage('customer-menu-page');
+            alert("Terima kasih! Pesanan Anda telah dicatat. Silakan lanjutkan di WhatsApp.");
         } else {
-            errorEl.classList.remove('hidden');
-            errorEl.textContent = result.message || "Invalid credentials.";
+            alert("Gagal menyimpan pesanan. Silakan coba lagi.");
         }
     };
-
-    const handleLogout = () => {
-        AppState.currentUser = null;
-        showPage('customer-menu-page');
-    };
-
-    const setupDashboard = async () => {
-        const { role } = AppState.currentUser;
-        const isOwner = role.toLowerCase() === 'admin' || role.toLowerCase() === 'owner';
-        
-        $('#nav-menu-manager').style.display = isOwner ? 'block' : 'none';
-        $('#nav-sales-dashboard').style.display = isOwner ? 'block' : 'none';
-
-        const ordersResult = await callApi('GET', 'getOrders');
-        if(ordersResult.status === 'success') {
-             AppState.orders = ordersResult.data;
-        }
-        
-        renderOrderQueue();
-        if (isOwner) {
-            renderMenuManager();
-            renderSalesDashboard();
-        }
-        
-        $$('.dashboard-content').forEach(v => v.classList.add('hidden'));
-        $('#orders-view').classList.remove('hidden');
-        $$('.dashboard-nav-btn').forEach(b => b.classList.remove('bg-primary-dark'));
-        $('.dashboard-nav-btn[data-view="orders"]').classList.add('bg-primary-dark');
-    };
-
-    const handleSaveMenuItem = async (e) => {
-        e.preventDefault();
-        const id = $('#menu-item-id').value;
-        const isEditing = !!id;
-        
-        const itemData = {
-            ID_Menu: id || `PBB-NEW-${Date.now()}`,
-            Nama_Produk: $('#menu-item-name').value,
-            Kategori: $('#menu-item-category').value,
-            Harga: parseInt($('#menu-item-price').value),
-            Deskripsi: $('#menu-item-desc').value,
-            Gambar: $('#menu-item-image').value,
-        };
-
-        const action = isEditing ? 'editMenuItem' : 'addMenuItem';
-        const result = await callApi('POST', action, itemData);
-
-        if (result.status === 'success') {
-            if (isEditing) {
-                const index = AppState.menuItems.findIndex(item => item.ID_Menu === id);
-                if(index !== -1) AppState.menuItems[index] = result.data;
-            } else {
-                AppState.menuItems.push(result.data);
-            }
-            hideModal('menu-item-modal');
-            renderMenuManager();
-            renderMenu();
-        }
-    };
-
-    const handleDeleteMenuItem = async () => {
-        const id = AppState.itemToDelete;
-        const result = await callApi('POST', 'deleteMenuItem', { id });
-
-        if (result.status === 'success') {
-            AppState.menuItems = AppState.menuItems.filter(item => item.ID_Menu !== id);
-            AppState.itemToDelete = null;
-            hideModal('delete-confirm-modal');
-            renderMenuManager();
-            renderMenu();
-        }
-    };
-
-    const handleUpdateOrderStatus = async (orderId, newStatus) => {
-        const result = await callApi('POST', 'updateOrderStatus', { id: orderId, status: newStatus });
-        if(result.status === 'success') {
-            const order = AppState.orders.find(o => o.ID_Pesanan === orderId);
-            if(order) {
-                order.Status = newStatus;
-                renderOrderQueue();
-            }
-        }
-    }
-
+    const handleLogin = async () => { const username=$("#username").value,password=$("#password").value,errorEl=$("#login-error"),result=await callApi("POST","login",{username,password});"success"===result.status?(AppState.currentUser=result.data,errorEl.classList.add("hidden"),await setupDashboard(),showPage("dashboard-page")):(errorEl.classList.remove("hidden"),errorEl.textContent=result.message||"Invalid credentials."); };
+    const handleLogout = () => { AppState.currentUser = null; showPage('customer-menu-page'); };
+    const setupDashboard = async () => { const{role}=AppState.currentUser,isOwner="admin"===role.toLowerCase()||"owner"===role.toLowerCase();$("#nav-menu-manager").style.display=isOwner?"block":"none"; const ordersResult=await callApi("GET","getOrders");"success"===ordersResult.status&&(AppState.orders=ordersResult.data),renderOrderQueue(),isOwner&&renderMenuManager(),$$(".dashboard-content").forEach(a=>a.classList.add("hidden")),$("#orders-view").classList.remove("hidden"),$$(".dashboard-nav-btn").forEach(a=>a.classList.remove("bg-primary-dark")),$('.dashboard-nav-btn[data-view="orders"]').classList.add("bg-primary-dark"); };
+    const handleSaveMenuItem = async (e) => { e.preventDefault();const id=$("#menu-item-id").value,isEditing=!!id,itemData={ID_Menu:id||`PBB-NEW-${Date.now()}`,Nama_Produk:$("#menu-item-name").value,Kategori:$("#menu-item-category").value,Harga:parseInt($("#menu-item-price").value),Deskripsi:$("#menu-item-desc").value,Gambar:$("#menu-item-image").value},action=isEditing?"editMenuItem":"addMenuItem",result=await callApi("POST",action,itemData);"success"===result.status&&(isEditing?AppState.menuItems[AppState.menuItems.findIndex(a=>a.ID_Menu===id)]=result.data:AppState.menuItems.push(result.data),hideModal("menu-item-modal"),renderMenuManager(),renderMenu()); };
+    const handleDeleteMenuItem = async () => { const id=AppState.itemToDelete,result=await callApi("POST","deleteMenuItem",{id});"success"===result.status&&(AppState.menuItems=AppState.menuItems.filter(a=>a.ID_Menu!==id),AppState.itemToDelete=null,hideModal("delete-confirm-modal"),renderMenuManager(),renderMenu()); };
+    const handleUpdateOrderStatus = async (orderId, newStatus) => { const result=await callApi("POST","updateOrderStatus",{id:orderId,status:newStatus});"success"===result.status&&((result=AppState.orders.find(a=>a.ID_Pesanan===orderId))&&(result.Status=newStatus,renderOrderQueue())); };
+    
     // --- INITIALIZATION ---
-    const initializeApp = async () => {
-        if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL === 'GANTI_DENGAN_URL_WEB_APP_ANDA') {
-            $('#loading-text').textContent = "Konfigurasi URL Google Apps Script belum diatur.";
-            return;
-        }
-        const result = await callApi('GET', 'getMenu');
-        if (result.status === 'success') {
-            AppState.menuItems = result.data;
-            renderMenu();
-        } else {
-             $('#loading-text').textContent = `Gagal memuat menu: ${result.message}`;
-        }
-        updateCartView();
-    };
-
-    // --- EVENT LISTENERS ---
+    const initializeApp = async () => { if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('GANTI_DENGAN')) { $('#loading-text').textContent = "Konfigurasi URL Google Apps Script belum diatur."; return; } const result = await callApi('GET', 'getMenu'); if (result.status === 'success') { AppState.menuItems = result.data; renderMenu(); renderMenuManager(); } else { $('#loading-text').textContent = `Gagal memuat menu: ${result.message}`; } updateCartView(); };
+    
     document.addEventListener('DOMContentLoaded', () => {
         initializeApp();
+        $('#qris-image').src = QRIS_IMAGE_URL;
 
         document.body.addEventListener('click', (e) => {
-            const target = e.target;
-            
-            // Customer
-            if (target.closest('.add-to-cart-btn')) handleAddToCart(target.closest('.add-to-cart-btn').dataset.id);
-            if (target.closest('#cart-fab')) { updateCartView(); showPage('cart-page'); }
-            if (target.closest('#back-to-menu-btn')) showPage('customer-menu-page');
-            if (target.closest('.quantity-btn')) handleQuantityChange(target.closest('.quantity-btn').dataset.id, parseInt(target.closest('.quantity-btn').dataset.change));
-            if (target.closest('#checkout-btn')) { renderCheckoutSummary(); showPage('checkout-page'); }
-            if (target.closest('#back-to-cart-btn')) showPage('cart-page');
-            if (target.closest('#place-order-btn')) handlePlaceOrder();
-            if (target.closest('#close-success-modal-btn')) {
-                hideModal('order-success-modal');
-                showPage('customer-menu-page');
-            }
-
-            // Admin Login
-            if (target.closest('#admin-login-button')) showPage('login-page');
-            if (target.closest('#back-to-customer-view-btn')) showPage('customer-menu-page');
-            if (target.closest('#login-btn')) handleLogin();
-            if (target.closest('#logout-btn')) handleLogout();
-
-            // Dashboard
-            if (target.closest('.dashboard-nav-btn')) {
-                const view = target.closest('.dashboard-nav-btn').dataset.view;
-                $$('.dashboard-content').forEach(v => v.classList.add('hidden'));
-                $(`#${view}-view`).classList.remove('hidden');
-                $$('.dashboard-nav-btn').forEach(b => b.classList.remove('bg-primary-dark'));
-                target.closest('.dashboard-nav-btn').classList.add('bg-primary-dark');
-            }
-            if (target.closest('.update-status-btn')) {
-                const btn = target.closest('.update-status-btn');
-                handleUpdateOrderStatus(btn.dataset.id, btn.dataset.status);
-            }
-
-            // Menu Manager
-            if (target.closest('#add-new-item-btn')) {
-                $('#menu-item-form').reset();
-                $('#menu-item-id').value = '';
-                $('#menu-item-modal-title').textContent = 'Add New Item';
-                showModal('menu-item-modal');
-            }
-            if (target.closest('.edit-item-btn')) {
-                const item = AppState.menuItems.find(i => i.ID_Menu === target.closest('.edit-item-btn').dataset.id);
-                if(!item) return;
-                $('#menu-item-id').value = item.ID_Menu;
-                $('#menu-item-name').value = item.Nama_Produk;
-                $('#menu-item-category').value = item.Kategori;
-                $('#menu-item-price').value = item.Harga;
-                $('#menu-item-desc').value = item.Deskripsi;
-                $('#menu-item-image').value = item.Gambar;
-                $('#menu-item-modal-title').textContent = 'Edit Item';
-                showModal('menu-item-modal');
-            }
-            if (target.closest('.delete-item-btn')) {
-                AppState.itemToDelete = target.closest('.delete-item-btn').dataset.id;
-                showModal('delete-confirm-modal');
-            }
-            if (target.closest('#cancel-menu-item-btn')) hideModal('menu-item-modal');
-            if (target.closest('#cancel-delete-btn')) hideModal('delete-confirm-modal');
-            if (target.closest('#confirm-delete-btn')) handleDeleteMenuItem();
+            const t=e.target;
+            if (t.closest('.add-to-cart-btn')) { const existingItem = AppState.cart.find(item => item.id === t.closest('.add-to-cart-btn').dataset.id); if (existingItem) existingItem.quantity++; else AppState.cart.push({ id: t.closest('.add-to-cart-btn').dataset.id, quantity: 1 }); updateCartView(); }
+            if (t.closest('#cart-fab')) { updateCartView(); showPage('cart-page'); }
+            if (t.closest('#back-to-menu-btn')) showPage('customer-menu-page');
+            if (t.closest('.quantity-btn')) { const cartItem = AppState.cart.find(item => item.id === t.closest('.quantity-btn').dataset.id); if (cartItem) { cartItem.quantity += parseInt(t.closest('.quantity-btn').dataset.change); if (cartItem.quantity <= 0) AppState.cart = AppState.cart.filter(item => item.id !== t.closest('.quantity-btn').dataset.id); } updateCartView(); }
+            if (t.closest('#checkout-btn')) { renderCheckoutSummary(); showPage('checkout-page'); }
+            if (t.closest('#back-to-cart-btn')) showPage('cart-page');
+            if (t.closest('#go-to-payment-btn')) handleGoToPayment();
+            if (t.closest('#send-to-whatsapp-btn')) showModal('whatsapp-confirm-modal');
+            if (t.closest('#cancel-whatsapp-btn')) hideModal('whatsapp-confirm-modal');
+            if (t.closest('#confirm-whatsapp-btn')) handleWhatsAppConfirmation();
+            if (t.closest('#admin-login-button')) showPage('login-page');
+            if (t.closest('#back-to-customer-view-btn')) showPage('customer-menu-page');
+            if (t.closest('#login-btn')) handleLogin();
+            if (t.closest('#logout-btn')) handleLogout();
+            if (t.closest('.dashboard-nav-btn')) { const view = t.closest('.dashboard-nav-btn').dataset.view; $$('.dashboard-content').forEach(v => v.classList.add('hidden')); $(`#${view}-view`).classList.remove('hidden'); $$('.dashboard-nav-btn').forEach(b => b.classList.remove('bg-primary-dark')); t.closest('.dashboard-nav-btn').classList.add('bg-primary-dark'); }
+            if (t.closest('.update-status-btn')) { const btn = t.closest('.update-status-btn'); handleUpdateOrderStatus(btn.dataset.id, btn.dataset.status); }
+            if (t.closest('#add-new-item-btn')) { $('#menu-item-form').reset(); $('#menu-item-id').value = ''; $('#menu-item-modal-title').textContent = 'Add New Item'; showModal('menu-item-modal'); }
+            if (t.closest('.edit-item-btn')) { const item = AppState.menuItems.find(i => i.ID_Menu === t.closest('.edit-item-btn').dataset.id); if(!item) return; $('#menu-item-id').value = item.ID_Menu; $('#menu-item-name').value = item.Nama_Produk; $('#menu-item-category').value = item.Kategori; $('#menu-item-price').value = item.Harga; $('#menu-item-desc').value = item.Deskripsi; $('#menu-item-image').value = item.Gambar; $('#menu-item-modal-title').textContent = 'Edit Item'; showModal('menu-item-modal'); }
+            if (t.closest('.delete-item-btn')) { AppState.itemToDelete = t.closest('.delete-item-btn').dataset.id; showModal('delete-confirm-modal'); }
+            if (t.closest('#cancel-menu-item-btn')) hideModal('menu-item-modal');
+            if (t.closest('#cancel-delete-btn')) hideModal('delete-confirm-modal');
+            if (t.closest('#confirm-delete-btn')) handleDeleteMenuItem();
         });
-
         $('#menu-item-form').addEventListener('submit', handleSaveMenuItem);
     });
-
 </script>
 </body>
 </html>
