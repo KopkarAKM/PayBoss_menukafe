@@ -456,7 +456,7 @@
                 <div class="total-line"><span>Pajak (10%):</span><span id="cart-tax">Rp 0</span></div>
                 <div class="total-line final"><span>Total:</span><span id="cart-total">Rp 0</span></div>
             </div>
-            <button class="checkout-btn" onclick="showCheckout()">Checkout</button>
+            <button class="checkout-btn" onclick="showCheckout()" disabled>Checkout</button>
         </div>
     </div>
 
@@ -473,7 +473,7 @@
                         <option value="1">Meja 1</option><option value="2">Meja 2</option><option value="3">Meja 3</option><option value="4">Meja 4</option><option value="5">Meja 5</option>
                     </select>
                 </div>
-                <div class="form-group"><label for="phone-number">Nomor WhatsApp:</label><input type="tel" id="phone-number" placeholder="08xxxxxxxxxx" required></div>
+                <div class="form-group"><label for="phone-number">Nomor WhatsApp Pelanggan:</label><input type="tel" id="phone-number" placeholder="08xxxxxxxxxx" required></div>
                 <button type="submit" class="checkout-btn">Lanjut ke Pembayaran</button>
                 <button type="button" class="btn-cancel" onclick="closeModal('checkout-modal')" style="margin-top: 10px; width: 100%;">Batal</button>
             </form>
@@ -489,32 +489,36 @@
                 <div class="receipt-line"><span>Pajak (10%):</span><span id="payment-tax"></span></div>
                 <div class="receipt-line total"><span>Total Bayar:</span><span id="payment-total"></span></div>
             </div>
-            <p>Scan QR Code untuk melakukan pembayaran</p>
+            <p>1. Lakukan screenshot pada QR Code di bawah ini.</p>
             <div class="qr-code">
-                <img src="https://i.imgur.com/r3aY33N.jpeg" alt="QR Code Pembayaran QRIS Payboss Cafe">
+                <img src="https://i.imgur.com/Pc4W6zN.jpg" alt="QR Code Pembayaran QRIS Payboss Cafe">
             </div>
-            <p style="font-size: 0.9rem; color: #666;">Setelah membayar, klik tombol konfirmasi.</p>
+            <p style="font-size: 0.9rem; color: #666;">2. Buka aplikasi pembayaran Anda dan bayar menggunakan screenshot.</p>
+            <p style="font-size: 0.9rem; color: #666;">3. Klik tombol di bawah untuk mengirim bukti bayar ke kasir via WhatsApp.</p>
             <div class="modal-buttons">
-                <button class="checkout-btn" onclick="confirmPayment()">Saya Sudah Bayar</button>
+                <button class="checkout-btn" onclick="sendWhatsAppConfirmation()">Kirim Bukti via WhatsApp</button>
                 <button type="button" class="btn-cancel" onclick="closeModal('payment-modal')">Batal</button>
             </div>
         </div>
     </div>
     <div class="modal" id="success-modal">
         <div class="modal-content">
-            <h3>✅ Pembayaran Berhasil!</h3>
-            <p>Pesanan Anda telah diterima dan sedang diproses.</p>
-            <p><strong>ID Pesanan:</strong> <span id="order-id"></span></p>
-            <p>Struk pembayaran akan dikirim ke WhatsApp Anda.</p>
+            <h3>✅ Pesanan Terkirim!</h3>
+            <p>Pesanan Anda telah dicatat oleh sistem.</p>
+            <p><strong>ID Pesanan (Kode Unik):</strong> <span id="order-id"></span></p>
+            <p>Silakan selesaikan konfirmasi dengan mengirim bukti pembayaran di WhatsApp yang telah terbuka.</p>
             <button class="checkout-btn" onclick="closeModal('success-modal'); resetApp();">OK</button>
         </div>
     </div>
 
     <script>
-        // !! PENTING: GANTI DENGAN URL GOOGLE APPS SCRIPT ANDA !!
+        // -- PENGATURAN --
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYZBB4E_CJtClEjRchz4RKEkQBV9969PZjW8Dng4taRnH6xx_-k9jUHCb4N7CsAdqwFQ/exec"; 
+        const CASHIER_WHATSAPP = "6285349972513";
+        // -- AKHIR PENGATURAN --
 
         let cart = [];
+        let currentOrder = null;
 
         document.addEventListener('DOMContentLoaded', function() {
             setupTabs();
@@ -564,6 +568,7 @@
             const cartItems = document.getElementById('cart-items');
             const cartCount = document.getElementById('cart-count');
             const [subtotalEl, taxEl, totalEl] = [document.getElementById('cart-subtotal'), document.getElementById('cart-tax'), document.getElementById('cart-total')];
+            const checkoutBtn = document.querySelector('.cart-total .checkout-btn');
             
             cartItems.innerHTML = '';
             let subtotal = 0;
@@ -596,9 +601,9 @@
             
             if (cart.length === 0) {
                 cartItems.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Keranjang kosong</div>';
-                 document.querySelector('.checkout-btn').disabled = true;
+                checkoutBtn.disabled = true;
             } else {
-                 document.querySelector('.checkout-btn').disabled = false;
+                checkoutBtn.disabled = false;
             }
         }
 
@@ -634,6 +639,20 @@
             const tax = Math.round(subtotal * 0.1);
             const total = subtotal + tax;
             
+            currentOrder = {
+                id: `PBC${Date.now()}`,
+                customerName: document.getElementById('customer-name').value,
+                tableNumber: document.getElementById('table-number').value,
+                phoneNumber: document.getElementById('phone-number').value,
+                items: JSON.stringify(cart.map(i => ({ name: i.name, variant: i.variant, qty: i.quantity }))),
+                subtotal: subtotal,
+                tax: tax,
+                total: total,
+                status: 'pending',
+                timestamp: new Date().toISOString(),
+                paymentStatus: 'unpaid' // Status awal unpaid
+            };
+
             const paymentItems = document.getElementById('payment-items');
             paymentItems.innerHTML = cart.map(item => `
                 <div class="receipt-line">
@@ -648,50 +667,51 @@
             closeModal('checkout-modal');
             document.getElementById('payment-modal').classList.add('active');
         });
+        
+        function sendWhatsAppConfirmation() {
+            if (!currentOrder) {
+                showNotification('Data pesanan tidak ditemukan!', true);
+                return;
+            }
 
-        function confirmPayment() {
-            const order = {
-                id: `PBC${Date.now()}`,
-                customerName: document.getElementById('customer-name').value,
-                tableNumber: document.getElementById('table-number').value,
-                phoneNumber: document.getElementById('phone-number').value,
-                items: JSON.stringify(cart),
-                subtotal: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-                tax: Math.round(cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.1),
-                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + Math.round(cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.1),
-                status: 'pending',
-                timestamp: new Date().toISOString(),
-                paymentStatus: 'paid'
-            };
-            
-            showNotification('Mengirim pesanan...');
             const paymentBtn = document.querySelector('#payment-modal .checkout-btn');
             paymentBtn.disabled = true;
             paymentBtn.textContent = 'Memproses...';
 
+            // 1. Kirim data ke Google Sheet
             fetch(SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors', // Diperlukan untuk Google Script Web App
+                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({action: 'addOrder', orderData: order})
+                body: JSON.stringify({action: 'addOrder', orderData: currentOrder})
             })
             .then(() => {
-                document.getElementById('order-id').textContent = order.id;
+                // 2. Jika berhasil, siapkan dan buka link WhatsApp
+                const message = `Konfirmasi Pembayaran - Payboss Cafe\n-----------------------------------\nID Pesanan (Kode Unik): *${currentOrder.id}*\nAtas Nama: *${currentOrder.customerName}*\nNomor Meja: *${currentOrder.tableNumber}*\nTotal: *Rp ${currentOrder.total.toLocaleString()}*\n-----------------------------------\n\nMohon lampirkan bukti pembayaran (screenshot) di sini. Terima kasih.`;
+                const whatsappURL = `https://api.whatsapp.com/send?phone=${CASHIER_WHATSAPP}&text=${encodeURIComponent(message)}`;
+                
+                window.open(whatsappURL, '_blank');
+
+                // 3. Tampilkan pesan sukses di aplikasi
+                document.getElementById('order-id').textContent = currentOrder.id;
                 closeModal('payment-modal');
                 document.getElementById('success-modal').classList.add('active');
-                paymentBtn.disabled = false;
-                paymentBtn.textContent = 'Saya Sudah Bayar';
             })
             .catch(error => {
                 console.error('Error:', error);
                 showNotification('Gagal mengirim pesanan! Coba lagi.', true);
+            })
+            .finally(() => {
+                 // Aktifkan kembali tombol
                 paymentBtn.disabled = false;
-                paymentBtn.textContent = 'Saya Sudah Bayar';
+                paymentBtn.textContent = 'Kirim Bukti via WhatsApp';
             });
         }
 
+
         function resetApp() {
             cart = [];
+            currentOrder = null;
             updateCartDisplay();
             if(document.getElementById('cart-sidebar').classList.contains('open')){
                 toggleCart();
