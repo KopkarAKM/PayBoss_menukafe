@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payboss Cafe - Sistem Pemesanan</title>
+    <title>Payboss Cafe - Menu Pelanggan</title>
     <style>
         body {
             box-sizing: border-box;
@@ -14,734 +14,101 @@
             min-height: 100%;
             padding-bottom: 80px;
         }
-
-        html {
-            height: 100%;
+        html { height: 100%; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 10px; }
+        .header { text-align: center; margin-bottom: 20px; color: #FFFFFF; padding: 10px; }
+        .header h1 { font-size: 2.5rem; margin: 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); font-weight: bold; }
+        .header p { font-size: 1rem; margin: 5px 0 0 0; opacity: 0.9; }
+        .view { display: none; background: rgba(255, 255, 255, 0.95); border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); overflow: hidden; margin: 0 5px; }
+        .view.active { display: block; }
+        .tabs { display: flex; background: #3E2723; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .tab-button { flex: none; padding: 15px 12px; background: none; border: none; color: #D2B48C; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; min-width: 100px; }
+        .tab-button:hover { background: rgba(210, 180, 140, 0.1); color: #FFFFFF; }
+        .tab-button.active { background: #8B4513; color: #FFFFFF; box-shadow: inset 0 -3px 0 #D2B48C; }
+        .tab-content { display: none; padding: 15px; animation: fadeIn 0.3s ease-in; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .category-title { font-size: 1.5rem; color: #3E2723; margin-bottom: 20px; text-align: center; font-weight: bold; }
+        .subcategory-title { font-size: 1.2rem; color: #3E2723; margin-top: 25px; margin-bottom: 15px; padding-bottom: 5px; border-bottom: 2px solid #D2B48C; }
+        .menu-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .menu-item { background: #FFFFFF; border-radius: 12px; padding: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); transition: all 0.3s ease; border-left: 4px solid #8B4513; position: relative; }
+        .menu-item:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); border-left-color: #D2B48C; }
+        .item-name { font-size: 1.1rem; font-weight: bold; color: #3E2723; margin-bottom: 6px; }
+        .item-description { color: #666; font-size: 0.85rem; margin-bottom: 10px; line-height: 1.4; }
+        .item-price { font-size: 1.1rem; font-weight: bold; color: #8B4513; margin-bottom: 12px; }
+        .variant-selector { margin-bottom: 12px; }
+        .variant-selector label { display: block; font-size: 0.85rem; font-weight: bold; color: #3E2723; margin-bottom: 5px; }
+        .variant-selector select { width: 100%; padding: 8px; border: 2px solid #ddd; border-radius: 6px; font-size: 0.9rem; background: white; }
+        .variant-selector select:focus { outline: none; border-color: #8B4513; }
+        .add-to-cart { background: #8B4513; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: background 0.3s ease; font-size: 0.95rem; }
+        .add-to-cart:hover { background: #A0522D; }
+        .quantity-controls { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 12px; background: #f8f8f8; padding: 10px; border-radius: 8px; }
+        .qty-btn { background: #8B4513; color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+        .qty-btn:hover { background: #A0522D; }
+        .qty-display { font-weight: bold; font-size: 1.2rem; min-width: 30px; text-align: center; color: #3E2723; }
+        .cart-sidebar { position: fixed; right: -100%; top: 0; width: 100%; max-width: 400px; height: 100%; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: right 0.3s ease; z-index: 1000; overflow-y: auto; }
+        .cart-sidebar.open { right: 0; }
+        .cart-header { background: #8B4513; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1001; }
+        .cart-header h3 { margin: 0; font-size: 1.1rem; }
+        .close-cart { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; padding: 5px; }
+        .cart-items { padding: 15px; min-height: calc(100vh - 200px); }
+        .cart-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .cart-item-info { flex: 1; margin-right: 10px; }
+        .cart-item-name { font-weight: bold; font-size: 0.95rem; margin-bottom: 4px; }
+        .cart-item-variant { font-size: 0.8rem; color: #666; margin-bottom: 4px; }
+        .cart-item-details { font-size: 0.85rem; color: #888; }
+        .cart-item-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .cart-item-price { font-weight: bold; color: #8B4513; font-size: 0.95rem; }
+        .remove-item { background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .cart-total { padding: 15px 20px; border-top: 2px solid #8B4513; background: #f8f9fa; position: sticky; bottom: 0; }
+        .total-breakdown { margin-bottom: 15px; }
+        .total-line { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.95rem; }
+        .total-line.final { font-weight: bold; font-size: 1.1rem; color: #8B4513; border-top: 1px solid #ddd; padding-top: 8px; margin-top: 8px; }
+        .checkout-btn { background: #8B4513; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        .checkout-btn:hover { background: #A0522D; }
+        .checkout-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .cart-toggle { position: fixed; right: 15px; bottom: 20px; background: #8B4513; color: white; border: none; padding: 15px; border-radius: 50%; cursor: pointer; z-index: 999; font-size: 1.2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; }
+        .cart-toggle:hover { background: #A0522D; transform: scale(1.05); }
+        .cart-count { position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border-radius: 50%; width: 22px; height: 22px; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; padding: 10px; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; padding: 20px; border-radius: 15px; max-width: 400px; width: 100%; text-align: center; max-height: 90vh; overflow-y: auto; }
+        .modal-content h3 { margin-top: 0; margin-bottom: 20px; color: #3E2723; font-size: 1.3rem; }
+        .qr-code { 
+            width: 250px; /* Disesuaikan agar lebih besar */
+            height: auto; /* Tinggi otomatis */
+            margin: 15px auto; 
+            padding: 10px; /* Menambah sedikit padding */
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px; 
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 10px;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #FFFFFF;
-            padding: 10px;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin: 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            font-weight: bold;
-        }
-
-        .header p {
-            font-size: 1rem;
-            margin: 5px 0 0 0;
-            opacity: 0.9;
-        }
-
-        .role-selector {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding: 0 10px;
-        }
-
-        .role-btn {
-            padding: 12px 20px;
-            background: #FFFFFF;
-            color: #8B4513;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            flex: 1;
-            max-width: 120px;
-        }
-
-        .role-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-
-        .role-btn.active {
-            background: #8B4513;
-            color: #FFFFFF;
-        }
-
-        .view {
-            display: none;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            overflow: hidden;
-            margin: 0 5px;
-        }
-
-        .view.active {
-            display: block;
-        }
-
-        /* Customer View Styles */
-        .tabs {
-            display: flex;
-            background: #3E2723;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .tab-button {
-            flex: none;
-            padding: 15px 12px;
-            background: none;
-            border: none;
-            color: #D2B48C;
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            min-width: 100px;
-        }
-
-        .tab-button:hover {
-            background: rgba(210, 180, 140, 0.1);
-            color: #FFFFFF;
-        }
-
-        .tab-button.active {
-            background: #8B4513;
-            color: #FFFFFF;
-            box-shadow: inset 0 -3px 0 #D2B48C;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 15px;
-            animation: fadeIn 0.3s ease-in;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .category-title {
-            font-size: 1.5rem;
-            color: #3E2723;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-
-        .menu-item {
-            background: #FFFFFF;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            border-left: 4px solid #8B4513;
-            position: relative;
-        }
-
-        .menu-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
-            border-left-color: #D2B48C;
-        }
-
-        .item-name {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #3E2723;
-            margin-bottom: 6px;
-        }
-
-        .item-description {
-            color: #666;
-            font-size: 0.85rem;
-            margin-bottom: 10px;
-            line-height: 1.4;
-        }
-
-        .item-price {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: #8B4513;
-            margin-bottom: 12px;
-        }
-
-        .variant-selector {
-            margin-bottom: 12px;
-        }
-
-        .variant-selector label {
-            display: block;
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: #3E2723;
-            margin-bottom: 5px;
-        }
-
-        .variant-selector select {
+        .qr-code img {
             width: 100%;
-            padding: 8px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            background: white;
-        }
-
-        .variant-selector select:focus {
-            outline: none;
-            border-color: #8B4513;
-        }
-
-        .add-to-cart {
-            background: #8B4513;
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-            transition: background 0.3s ease;
-            font-size: 0.95rem;
-        }
-
-        .add-to-cart:hover {
-            background: #A0522D;
-        }
-
-        .add-to-cart:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .quantity-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 12px;
-            background: #f8f8f8;
-            padding: 10px;
-            border-radius: 8px;
-        }
-
-        .qty-btn {
-            background: #8B4513;
-            color: white;
-            border: none;
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .qty-btn:hover {
-            background: #A0522D;
-        }
-
-        .qty-display {
-            font-weight: bold;
-            font-size: 1.2rem;
-            min-width: 30px;
-            text-align: center;
-            color: #3E2723;
-        }
-
-        /* Cart Styles */
-        .cart-sidebar {
-            position: fixed;
-            right: -100%;
-            top: 0;
-            width: 100%;
-            max-width: 400px;
-            height: 100%;
-            background: white;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-            transition: right 0.3s ease;
-            z-index: 1000;
-            overflow-y: auto;
-        }
-
-        .cart-sidebar.open {
-            right: 0;
-        }
-
-        .cart-header {
-            background: #8B4513;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1001;
-        }
-
-        .cart-header h3 {
-            margin: 0;
-            font-size: 1.1rem;
-        }
-
-        .close-cart {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5rem;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .cart-items {
-            padding: 15px;
-            min-height: calc(100vh - 200px);
-        }
-
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
-        }
-
-        .cart-item-info {
-            flex: 1;
-            margin-right: 10px;
-        }
-
-        .cart-item-name {
-            font-weight: bold;
-            font-size: 0.95rem;
-            margin-bottom: 4px;
-        }
-
-        .cart-item-variant {
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 4px;
-        }
-
-        .cart-item-details {
-            font-size: 0.85rem;
-            color: #888;
-        }
-
-        .cart-item-actions {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 5px;
-        }
-
-        .cart-item-price {
-            font-weight: bold;
-            color: #8B4513;
-            font-size: 0.95rem;
-        }
-
-        .remove-item {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        .cart-total {
-            padding: 15px 20px;
-            border-top: 2px solid #8B4513;
-            background: #f8f9fa;
-            position: sticky;
-            bottom: 0;
-        }
-
-        .total-breakdown {
-            margin-bottom: 15px;
-        }
-
-        .total-line {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 0.95rem;
-        }
-
-        .total-line.final {
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: #8B4513;
-            border-top: 1px solid #ddd;
-            padding-top: 8px;
-            margin-top: 8px;
-        }
-
-        .checkout-btn {
-            background: #8B4513;
-            color: white;
-            border: none;
-            padding: 15px;
-            width: 100%;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .checkout-btn:hover {
-            background: #A0522D;
-        }
-
-        .checkout-btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .cart-toggle {
-            position: fixed;
-            right: 15px;
-            bottom: 20px;
-            background: #8B4513;
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 999;
-            font-size: 1.2rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            width: 60px;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .cart-toggle:hover {
-            background: #A0522D;
-            transform: scale(1.05);
-        }
-
-        .cart-count {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #dc3545;
-            color: white;
-            border-radius: 50%;
-            width: 22px;
-            height: 22px;
-            font-size: 0.8rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-        }
-
-        /* Modal Styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .modal-content h3 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #3E2723;
-            font-size: 1.3rem;
-        }
-
-        .qr-code {
-            width: 180px;
-            height: 180px;
-            background: #f0f0f0;
-            margin: 15px auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px dashed #8B4513;
-            border-radius: 10px;
-            flex-direction: column;
-        }
-
-        .qr-code div:first-child {
-            font-size: 2.5rem;
-            margin-bottom: 8px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #3E2723;
-            font-size: 0.95rem;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #8B4513;
-        }
-
-        .modal-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn-cancel {
-            background: #6c757d;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-
-        .btn-cancel:hover {
-            background: #5a6268;
-        }
-
-        .receipt-info {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            text-align: left;
-        }
-
-        .receipt-info h4 {
-            margin: 0 0 10px 0;
-            color: #3E2723;
-        }
-
-        .receipt-line {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-        }
-
-        .receipt-line.total {
-            font-weight: bold;
-            border-top: 1px solid #ddd;
-            padding-top: 8px;
-            margin-top: 8px;
-            color: #8B4513;
-        }
-
-        /* Cashier & Kitchen Views */
-        .dashboard {
-            padding: 30px;
-        }
-
-        .dashboard-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #8B4513;
-        }
-
-        .order-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-left: 4px solid #8B4513;
-        }
-
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .order-id {
-            font-weight: bold;
-            color: #8B4513;
-        }
-
-        .order-status {
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: bold;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-preparing {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        .status-ready {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-delivered {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-        .order-items {
-            margin-bottom: 15px;
-        }
-
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 5px 0;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border: none;
+            height: auto;
             border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
         }
-
-        .btn-primary {
-            background: #8B4513;
-            color: white;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-warning {
-            background: #ffc107;
-            color: #212529;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
-        }
-
+        .qr-code div:first-child { font-size: 2.5rem; margin-bottom: 8px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #3E2723; font-size: 0.95rem; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: #8B4513; }
+        .modal-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .btn-cancel { background: #6c757d; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 1rem; cursor: pointer; }
+        .btn-cancel:hover { background: #5a6268; }
+        .receipt-info { background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: left; }
+        .receipt-info h4 { margin: 0 0 10px 0; color: #3E2723; }
+        .receipt-line { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 0.9rem; }
+        .receipt-line.total { font-weight: bold; border-top: 1px solid #ddd; padding-top: 8px; margin-top: 8px; color: #8B4513; }
+        
         @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-
-            .header h1 {
-                font-size: 2.2rem;
-            }
-
-            .role-selector {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .tabs {
-                flex-direction: column;
-            }
-
-            .tab-button {
-                min-width: auto;
-                text-align: left;
-            }
-
-            .menu-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .cart-sidebar {
-                width: 100%;
-                right: -100%;
-            }
-
-            .cart-toggle {
-                right: 10px;
-                top: 10px;
-            }
+            .container { padding: 5px; }
+            .header h1 { font-size: 2.2rem; }
+            .tabs { flex-direction: column; }
+            .tab-button { min-width: auto; text-align: left; }
+            .menu-grid { grid-template-columns: 1fr; }
+            .cart-sidebar { width: 100%; max-width: 100%; right: -100%; }
+            .cart-toggle { right: 10px; bottom: 10px; }
         }
     </style>
 </head>
@@ -749,16 +116,9 @@
     <div class="container">
         <header class="header">
             <h1>☕ Payboss Cafe</h1>
-            <p>Sistem Pemesanan Terintegrasi</p>
+            <p>Sistem Pemesanan Mandiri</p>
         </header>
 
-        <div class="role-selector">
-            <button class="role-btn active" onclick="switchView('customer')">👥 Pelanggan</button>
-            <button class="role-btn" onclick="switchView('cashier')">💰 Kasir</button>
-            <button class="role-btn" onclick="switchView('kitchen')">👨‍🍳 Dapur</button>
-        </div>
-
-        <!-- Customer View -->
         <div id="customer-view" class="view active">
             <div class="tabs">
                 <button class="tab-button active" data-tab="snacks">Makanan Ringan</button>
@@ -767,369 +127,313 @@
                 <button class="tab-button" data-tab="coffee">Kopi</button>
                 <button class="tab-button" data-tab="non-coffee">Non-Kopi</button>
             </div>
-
+            <!-- Tab Makanan Ringan -->
             <div id="snacks" class="tab-content active">
                 <h2 class="category-title">🍟 Makanan Ringan (Snacks)</h2>
+                
+                <h3 class="subcategory-title">Gorengan & Tepung Olahan</h3>
                 <div class="menu-grid">
-                    <div class="menu-item" data-name="Mix Vegetable Pay Boss" data-price="25000">
-                        <div class="item-name">Mix Vegetable Pay Boss</div>
-                        <div class="item-description">Pisang goreng, singkong, bakwan, tempe mendoan, jagung</div>
+                    <div class="menu-item" data-name="Mix Vegetable PayBoss" data-price="25000">
+                        <div class="item-name">Mix Vegetable PayBoss</div>
+                        <div class="item-description">Pisang goreng, singkong, bakwan, tempe mendoan, jagung.</div>
                         <div class="item-price">Rp 25.000</div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
                     <div class="menu-item" data-name="Mix Platter" data-price="30000">
                         <div class="item-name">Mix Platter</div>
-                        <div class="item-description">Kentang goreng, nuget, sosis, otak-otak, kulit ayam</div>
+                        <div class="item-description">Kentang goreng, nugget, sosis, otak-otak, kulit ayam.</div>
                         <div class="item-price">Rp 30.000</div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Kentang Goreng" data-price="18000">
+                        <div class="item-name">Kentang Goreng</div>
+                        <div class="item-price">Rp 18.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Cireng Isi" data-price="15000" data-variants='["Ayam Suwir", "Pentol Pedas", "Keju"]'>
+                        <div class="item-name">Cireng Isi</div>
+                        <div class="item-price">Rp 15.000</div>
+                        <div class="variant-selector"><label>Pilih Varian:</label><select class="variant-select"><option>Ayam Suwir</option><option>Pentol Pedas</option><option>Keju</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Cireng Bumbu Rujak" data-price="12000">
+                        <div class="item-name">Cireng Bumbu Rujak</div>
+                        <div class="item-price">Rp 12.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Singkong Rekah" data-price="12000">
+                        <div class="item-name">Singkong Rekah</div>
+                        <div class="item-price">Rp 12.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Pisang Kipas" data-price="12000">
+                        <div class="item-name">Pisang Kipas</div>
+                        <div class="item-price">Rp 12.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Tempe Mendoan" data-price="12000">
+                        <div class="item-name">Tempe Mendoan</div>
+                        <div class="item-price">Rp 12.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Tahu Cabe Garam" data-price="15000">
+                        <div class="item-name">Tahu Cabe Garam</div>
+                        <div class="item-price">Rp 15.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Tahu Bakso" data-price="15000">
+                        <div class="item-name">Tahu Bakso</div>
+                        <div class="item-price">Rp 15.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
                     <div class="menu-item" data-name="Kulit Ayam Crispy" data-price="15000">
                         <div class="item-name">Kulit Ayam Crispy</div>
-                        <div class="item-description">Kulit ayam goreng renyah dengan bumbu spesial</div>
                         <div class="item-price">Rp 15.000</div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
-                    <div class="menu-item" data-name="Corn Ribs" data-price="15000" data-variants='["Spicy", "Original"]'>
-                        <div class="item-name">Corn Ribs</div>
-                        <div class="item-description">Jagung bakar dengan bumbu spicy atau original</div>
+                    <div class="menu-item" data-name="Jamur Crispy" data-price="15000">
+                        <div class="item-name">Jamur Crispy</div>
                         <div class="item-price">Rp 15.000</div>
-                        <div class="variant-selector">
-                            <label for="corn-ribs-variant">Pilih Varian:</label>
-                            <select id="corn-ribs-variant" class="variant-select">
-                                <option value="Spicy">Spicy</option>
-                                <option value="Original">Original</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Sotong Goreng" data-price="18000">
+                        <div class="item-name">Sotong Goreng</div>
+                        <div class="item-description">Camilan cumi.</div>
+                        <div class="item-price">Rp 18.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                </div>
+
+                <h3 class="subcategory-title">Risol, Dimsum & Sejenisnya</h3>
+                <div class="menu-grid">
+                     <div class="menu-item" data-name="Risol Mayo" data-price="10000">
+                        <div class="item-name">Risol Mayo</div>
+                        <div class="item-price">Rp 10.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                     <div class="menu-item" data-name="Dimsum Keju Lumer" data-price="20000">
+                        <div class="item-name">Dimsum Keju Lumer</div>
+                        <div class="item-price">Rp 20.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                     <div class="menu-item" data-name="Mini Wonton Crispy" data-price="18000">
+                        <div class="item-name">Mini Wonton Crispy</div>
+                        <div class="item-price">Rp 18.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
                     <div class="menu-item" data-name="Dimsum" data-price="18000" data-variants='["Seafood", "Ayam", "Sapi"]'>
                         <div class="item-name">Dimsum</div>
-                        <div class="item-description">Dimsum kukus dengan berbagai pilihan isian</div>
                         <div class="item-price">Rp 18.000</div>
-                        <div class="variant-selector">
-                            <label for="dimsum-variant">Pilih Isian:</label>
-                            <select id="dimsum-variant" class="variant-select">
-                                <option value="Seafood">Seafood</option>
-                                <option value="Ayam">Ayam</option>
-                                <option value="Sapi">Sapi</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="variant-selector"><label>Pilih Varian:</label><select class="variant-select"><option>Seafood</option><option>Ayam</option><option>Sapi</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                </div>
+
+                <h3 class="subcategory-title">Spesial Jagung</h3>
+                <div class="menu-grid">
+                    <div class="menu-item" data-name="Corn Ribs" data-price="15000" data-variants='["Spicy", "Original"]'>
+                        <div class="item-name">Corn Ribs</div>
+                        <div class="item-price">Rp 15.000</div>
+                        <div class="variant-selector"><label>Pilih Varian:</label><select class="variant-select"><option>Spicy</option><option>Original</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                </div>
+                
+                <h3 class="subcategory-title">Olahan Ikan</h3>
+                <div class="menu-grid">
+                    <div class="menu-item" data-name="Pempek" data-price="20000">
+                        <div class="item-name">Pempek</div>
+                        <div class="item-price">Rp 20.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
                 </div>
             </div>
-
+            
+            <!-- Tab Roti & Manis -->
             <div id="pastry" class="tab-content">
                 <h2 class="category-title">🍞 Roti & Manis (Pastry & Sweet)</h2>
                 <div class="menu-grid">
-                    <div class="menu-item" data-name="Pisang Kipas" data-price="12000">
-                        <div class="item-name">Pisang Kipas</div>
-                        <div class="item-description">Pisang goreng bentuk kipas dengan topping manis</div>
-                        <div class="item-price">Rp 12.000</div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
-                    </div>
-                    <div class="menu-item" data-name="Donat" data-price="8000" data-variants='["Cokelat", "Keju", "Gula"]'>
+                     <div class="menu-item" data-name="Donat" data-price="8000" data-variants='["Original Cokelat", "Original Keju", "Original Gula"]'>
                         <div class="item-name">Donat</div>
-                        <div class="item-description">Donat lembut dengan berbagai topping pilihan</div>
                         <div class="item-price">Rp 8.000</div>
-                        <div class="variant-selector">
-                            <label for="donat-variant">Pilih Topping:</label>
-                            <select id="donat-variant" class="variant-select">
-                                <option value="Cokelat">Cokelat</option>
-                                <option value="Keju">Keju</option>
-                                <option value="Gula">Gula</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="variant-selector"><label>Pilih Topping:</label><select class="variant-select"><option>Original Cokelat</option><option>Original Keju</option><option>Original Gula</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
-                    <div class="menu-item" data-name="Toast" data-price="15000" data-variants='["Matcha", "France", "Cokelat", "Kacang"]'>
+                    <div class="menu-item" data-name="Toast" data-price="15000" data-variants='["Matcha", "French Toast", "Cokelat", "Kacang"]'>
                         <div class="item-name">Toast</div>
-                        <div class="item-description">Roti panggang dengan berbagai rasa premium</div>
                         <div class="item-price">Rp 15.000</div>
-                        <div class="variant-selector">
-                            <label for="toast-variant">Pilih Rasa:</label>
-                            <select id="toast-variant" class="variant-select">
-                                <option value="Matcha">Matcha</option>
-                                <option value="France">France</option>
-                                <option value="Cokelat">Cokelat</option>
-                                <option value="Kacang">Kacang</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="variant-selector"><label>Pilih Rasa:</label><select class="variant-select"><option>Matcha</option><option>French Toast</option><option>Cokelat</option><option>Kacang</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
-                    <div class="menu-item" data-name="Croissant" data-price="18000" data-variants='["Butter", "Almond", "Cokelat", "Vanilla"]'>
+                     <div class="menu-item" data-name="Croissant" data-price="18000" data-variants='["Butter", "Almond", "Cokelat", "Vanilla"]'>
                         <div class="item-name">Croissant</div>
-                        <div class="item-description">Croissant buttery dengan berbagai isian</div>
                         <div class="item-price">Rp 18.000</div>
-                        <div class="variant-selector">
-                            <label for="croissant-variant">Pilih Isian:</label>
-                            <select id="croissant-variant" class="variant-select">
-                                <option value="Butter">Butter</option>
-                                <option value="Almond">Almond</option>
-                                <option value="Cokelat">Cokelat</option>
-                                <option value="Vanilla">Vanilla</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="variant-selector"><label>Pilih Varian:</label><select class="variant-select"><option>Butter</option><option>Almond</option><option>Cokelat</option><option>Vanilla</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Roti Goreng" data-price="10000">
+                        <div class="item-name">Roti Goreng</div>
+                        <div class="item-price">Rp 10.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Bakpao" data-price="12000" data-variants='["Seafood", "Ayam", "Sapi"]'>
+                        <div class="item-name">Bakpao</div>
+                        <div class="item-price">Rp 12.000</div>
+                        <div class="variant-selector"><label>Pilih Varian:</label><select class="variant-select"><option>Seafood</option><option>Ayam</option><option>Sapi</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Kacang Bergula" data-price="10000">
+                        <div class="item-name">Kacang Bergula</div>
+                        <div class="item-description">Peanuts caramelized.</div>
+                        <div class="item-price">Rp 10.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Pepperoni Pizza Spring Roll" data-price="22000">
+                        <div class="item-name">Pepperoni Pizza Spring Roll</div>
+                        <div class="item-price">Rp 22.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
                 </div>
             </div>
-
-            <div id="main" class="tab-content">
+            
+            <!-- Tab Makanan Berat -->
+             <div id="main" class="tab-content">
                 <h2 class="category-title">🍽️ Makanan Berat (Main Course)</h2>
+                <h3 class="subcategory-title">Nasi</h3>
                 <div class="menu-grid">
                     <div class="menu-item" data-name="Nasi Goreng" data-price="25000" data-variants='["Bumbu Rendang", "Bumbu Rawon", "Bumbu Soto"]'>
                         <div class="item-name">Nasi Goreng</div>
-                        <div class="item-description">Nasi goreng dengan bumbu khas nusantara</div>
                         <div class="item-price">Rp 25.000</div>
-                        <div class="variant-selector">
-                            <label for="nasi-goreng-variant">Pilih Bumbu:</label>
-                            <select id="nasi-goreng-variant" class="variant-select">
-                                <option value="Bumbu Rendang">Bumbu Rendang</option>
-                                <option value="Bumbu Rawon">Bumbu Rawon</option>
-                                <option value="Bumbu Soto">Bumbu Soto</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="variant-selector"><label>Pilih Bumbu:</label><select class="variant-select"><option>Bumbu Rendang</option><option>Bumbu Rawon</option><option>Bumbu Soto</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
-                    <div class="menu-item" data-name="Mie Goreng" data-price="22000" data-variants='["Seafood", "Ayam", "Sapi"]'>
+                 </div>
+                 <h3 class="subcategory-title">Mie</h3>
+                 <div class="menu-grid">
+                     <div class="menu-item" data-name="Mie Goreng" data-price="22000" data-variants='["Seafood", "Ayam", "Sapi"]'>
                         <div class="item-name">Mie Goreng</div>
-                        <div class="item-description">Mie goreng dengan topping protein pilihan</div>
                         <div class="item-price">Rp 22.000</div>
-                        <div class="variant-selector">
-                            <label for="mie-goreng-variant">Pilih Topping:</label>
-                            <select id="mie-goreng-variant" class="variant-select">
-                                <option value="Seafood">Seafood</option>
-                                <option value="Ayam">Ayam</option>
-                                <option value="Sapi">Sapi</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="variant-selector"><label>Pilih Topping:</label><select class="variant-select"><option>Seafood</option><option>Ayam</option><option>Sapi</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
                     <div class="menu-item" data-name="Mie Godog" data-price="20000" data-variants='["Seafood", "Ayam", "Sapi"]'>
                         <div class="item-name">Mie Godog</div>
-                        <div class="item-description">Mie rebus dalam kuah gurih dengan topping</div>
                         <div class="item-price">Rp 20.000</div>
-                        <div class="variant-selector">
-                            <label for="mie-godog-variant">Pilih Topping:</label>
-                            <select id="mie-godog-variant" class="variant-select">
-                                <option value="Seafood">Seafood</option>
-                                <option value="Ayam">Ayam</option>
-                                <option value="Sapi">Sapi</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="variant-selector"><label>Pilih Topping:</label><select class="variant-select"><option>Seafood</option><option>Ayam</option><option>Sapi</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
-                    <div class="menu-item" data-name="Sup" data-price="18000" data-variants='["Seafood", "Ayam", "Sapi"]'>
+                    <div class="menu-item" data-name="Mie Ayam" data-price="20000" data-variants='["Original", "Bakso", "Jamur"]'>
+                        <div class="item-name">Mie Ayam</div>
+                        <div class="item-price">Rp 20.000</div>
+                        <div class="variant-selector"><label>Pilih Topping:</label><select class="variant-select"><option>Original</option><option>Bakso</option><option>Jamur</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                 </div>
+                 <h3 class="subcategory-title">Sup</h3>
+                 <div class="menu-grid">
+                     <div class="menu-item" data-name="Sup" data-price="18000" data-variants='["Seafood", "Ayam", "Sapi"]'>
                         <div class="item-name">Sup</div>
-                        <div class="item-description">Sup hangat dengan sayuran dan protein</div>
                         <div class="item-price">Rp 18.000</div>
-                        <div class="variant-selector">
-                            <label for="sup-variant">Pilih Protein:</label>
-                            <select id="sup-variant" class="variant-select">
-                                <option value="Seafood">Seafood</option>
-                                <option value="Ayam">Ayam</option>
-                                <option value="Sapi">Sapi</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="variant-selector"><label>Pilih Isi:</label><select class="variant-select"><option>Seafood</option><option>Ayam</option><option>Sapi</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
-                </div>
+                 </div>
             </div>
-
+            
+            <!-- Tab Kopi -->
             <div id="coffee" class="tab-content">
                 <h2 class="category-title">☕ Kopi (Coffee)</h2>
                 <div class="menu-grid">
-                    <div class="menu-item" data-name="Americano" data-price="15000" data-variants='["Original", "Orange", "Peach", "Honey", "Berry"]'>
+                     <div class="menu-item" data-name="Americano" data-price="15000" data-variants='["Original", "Orange", "Peach", "Honey", "Berry"]'>
                         <div class="item-name">Americano</div>
-                        <div class="item-description">Kopi hitam dengan berbagai twist rasa</div>
                         <div class="item-price">Rp 15.000</div>
-                        <div class="variant-selector">
-                            <label for="americano-variant">Pilih Rasa:</label>
-                            <select id="americano-variant" class="variant-select">
-                                <option value="Original">Original</option>
-                                <option value="Orange">Orange</option>
-                                <option value="Peach">Peach</option>
-                                <option value="Honey">Honey</option>
-                                <option value="Berry">Berry</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="variant-selector"><label>Pilih Rasa:</label><select class="variant-select"><option>Original</option><option>Orange</option><option>Peach</option><option>Honey</option><option>Berry</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
-                    <div class="menu-item" data-name="Kopsus" data-price="18000" data-variants='["Aren", "Vanilla", "Mocca", "Machiato", "Latte", "Cappuccino"]'>
-                        <div class="item-name">Kopsus</div>
-                        <div class="item-description">Kopi susu premium dengan berbagai rasa</div>
+                    <div class="menu-item" data-name="Kopi Susu" data-price="18000" data-variants='["Aren", "Vanilla", "Mocca", "Macchiato", "Latte", "Cappuccino"]'>
+                        <div class="item-name">Kopi Susu (Kopsus)</div>
                         <div class="item-price">Rp 18.000</div>
-                        <div class="variant-selector">
-                            <label for="kopsus-variant">Pilih Rasa:</label>
-                            <select id="kopsus-variant" class="variant-select">
-                                <option value="Aren">Aren</option>
-                                <option value="Vanilla">Vanilla</option>
-                                <option value="Mocca">Mocca</option>
-                                <option value="Machiato">Machiato</option>
-                                <option value="Latte">Latte</option>
-                                <option value="Cappuccino">Cappuccino</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="variant-selector"><label>Pilih Rasa:</label><select class="variant-select"><option>Aren</option><option>Vanilla</option><option>Mocca</option><option>Macchiato</option><option>Latte</option><option>Cappuccino</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
                 </div>
             </div>
-
+            
+            <!-- Tab Non-Kopi -->
             <div id="non-coffee" class="tab-content">
                 <h2 class="category-title">🥤 Non-Kopi (Non-Coffee)</h2>
                 <div class="menu-grid">
-                    <div class="menu-item" data-name="Yakultberry" data-price="12000">
-                        <div class="item-name">Yakultberry</div>
-                        <div class="item-description">Minuman segar yakult dengan berry</div>
+                     <div class="menu-item" data-name="Yakult Berry" data-price="15000">
+                        <div class="item-name">Yakult Berry</div>
+                        <div class="item-price">Rp 15.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Cincau" data-price="12000">
+                        <div class="item-name">Cincau</div>
                         <div class="item-price">Rp 12.000</div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                    <div class="menu-item" data-name="Sarang Burung Walet" data-price="25000">
+                        <div class="item-name">Sarang Burung Walet</div>
+                        <div class="item-price">Rp 25.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
                     <div class="menu-item" data-name="Teh" data-price="10000" data-variants='["Original", "Lemon", "Apple", "Susu"]'>
                         <div class="item-name">Teh</div>
-                        <div class="item-description">Teh dengan berbagai rasa pilihan</div>
                         <div class="item-price">Rp 10.000</div>
-                        <div class="variant-selector">
-                            <label for="teh-variant">Pilih Rasa:</label>
-                            <select id="teh-variant" class="variant-select">
-                                <option value="Original">Original</option>
-                                <option value="Lemon">Lemon</option>
-                                <option value="Apple">Apple</option>
-                                <option value="Susu">Susu</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="variant-selector"><label>Pilih Rasa:</label><select class="variant-select"><option>Original</option><option>Lemon</option><option>Apple</option><option>Susu</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
-                    <div class="menu-item" data-name="Air Kelapa" data-price="12000" data-variants='["Original", "Susu", "Kopi"]'>
+                    <div class="menu-item" data-name="Sup Buah" data-price="18000">
+                        <div class="item-name">Sup Buah</div>
+                        <div class="item-price">Rp 18.000</div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
+                    </div>
+                     <div class="menu-item" data-name="Air Kelapa" data-price="12000" data-variants='["Original", "Susu", "Kopi"]'>
                         <div class="item-name">Air Kelapa</div>
-                        <div class="item-description">Air kelapa muda segar dengan variasi</div>
                         <div class="item-price">Rp 12.000</div>
-                        <div class="variant-selector">
-                            <label for="air-kelapa-variant">Pilih Varian:</label>
-                            <select id="air-kelapa-variant" class="variant-select">
-                                <option value="Original">Original</option>
-                                <option value="Susu">Susu</option>
-                                <option value="Kopi">Kopi</option>
-                            </select>
-                        </div>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" onclick="changeQuantity(this, -1)">-</button>
-                            <span class="qty-display">1</span>
-                            <button class="qty-btn" onclick="changeQuantity(this, 1)">+</button>
-                        </div>
-                        <button class="add-to-cart" onclick="addToCart(this)">Tambah ke Keranjang</button>
+                        <div class="variant-selector"><label>Pilih Varian:</label><select class="variant-select"><option>Original</option><option>Susu</option><option>Kopi</option></select></div>
+                        <div class="quantity-controls"><button class="qty-btn" onclick="changeQuantity(this, -1)">-</button><span class="qty-display">1</span><button class="qty-btn" onclick="changeQuantity(this, 1)">+</button></div>
+                        <button class="add-to-cart" onclick="addToCart(this)">Tambah</button>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Cashier View -->
-        <div id="cashier-view" class="view">
-            <div class="dashboard">
-                <div class="dashboard-header">
-                    <h2>💰 Dashboard Kasir</h2>
-                    <div>Total Pesanan Hari Ini: <strong id="total-orders">0</strong></div>
-                </div>
-                <div id="cashier-orders">
-                    <!-- Orders will be populated here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Kitchen View -->
-        <div id="kitchen-view" class="view">
-            <div class="dashboard">
-                <div class="dashboard-header">
-                    <h2>👨‍🍳 Dashboard Dapur</h2>
-                    <div>Pesanan Aktif: <strong id="active-orders">0</strong></div>
-                </div>
-                <div id="kitchen-orders">
-                    <!-- Orders will be populated here -->
                 </div>
             </div>
         </div>
@@ -1140,195 +444,118 @@
         🛒
         <span class="cart-count" id="cart-count">0</span>
     </button>
-
     <div class="cart-sidebar" id="cart-sidebar">
         <div class="cart-header">
             <h3>Keranjang Belanja</h3>
             <button class="close-cart" onclick="toggleCart()">×</button>
         </div>
-        <div class="cart-items" id="cart-items">
-            <!-- Cart items will be populated here -->
-        </div>
+        <div class="cart-items" id="cart-items"></div>
         <div class="cart-total">
             <div class="total-breakdown">
-                <div class="total-line">
-                    <span>Subtotal:</span>
-                    <span id="cart-subtotal">Rp 0</span>
-                </div>
-                <div class="total-line">
-                    <span>Pajak (10%):</span>
-                    <span id="cart-tax">Rp 0</span>
-                </div>
-                <div class="total-line final">
-                    <span>Total:</span>
-                    <span id="cart-total">Rp 0</span>
-                </div>
+                <div class="total-line"><span>Subtotal:</span><span id="cart-subtotal">Rp 0</span></div>
+                <div class="total-line"><span>Pajak (10%):</span><span id="cart-tax">Rp 0</span></div>
+                <div class="total-line final"><span>Total:</span><span id="cart-total">Rp 0</span></div>
             </div>
             <button class="checkout-btn" onclick="showCheckout()">Checkout</button>
         </div>
     </div>
 
-    <!-- Checkout Modal -->
+    <!-- Modals -->
     <div class="modal" id="checkout-modal">
         <div class="modal-content">
             <h3>Informasi Pemesanan</h3>
             <form id="checkout-form">
-                <div class="form-group">
-                    <label for="customer-name">Nama Pelanggan:</label>
-                    <input type="text" id="customer-name" required>
-                </div>
+                <div class="form-group"><label for="customer-name">Nama Pelanggan:</label><input type="text" id="customer-name" required></div>
                 <div class="form-group">
                     <label for="table-number">Nomor Meja:</label>
                     <select id="table-number" required>
                         <option value="">Pilih Meja</option>
-                        <option value="1">Meja 1</option>
-                        <option value="2">Meja 2</option>
-                        <option value="3">Meja 3</option>
-                        <option value="4">Meja 4</option>
-                        <option value="5">Meja 5</option>
+                        <option value="1">Meja 1</option><option value="2">Meja 2</option><option value="3">Meja 3</option><option value="4">Meja 4</option><option value="5">Meja 5</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="phone-number">Nomor WhatsApp:</label>
-                    <input type="tel" id="phone-number" placeholder="08xxxxxxxxxx" required>
-                </div>
+                <div class="form-group"><label for="phone-number">Nomor WhatsApp:</label><input type="tel" id="phone-number" placeholder="08xxxxxxxxxx" required></div>
                 <button type="submit" class="checkout-btn">Lanjut ke Pembayaran</button>
-                <button type="button" class="btn" onclick="closeModal('checkout-modal')" style="margin-top: 10px; width: 100%;">Batal</button>
+                <button type="button" class="btn-cancel" onclick="closeModal('checkout-modal')" style="margin-top: 10px; width: 100%;">Batal</button>
             </form>
         </div>
     </div>
-
-    <!-- Payment Modal -->
     <div class="modal" id="payment-modal">
         <div class="modal-content">
             <h3>Pembayaran QRIS</h3>
             <div class="receipt-info">
                 <h4>Detail Pesanan</h4>
                 <div id="payment-items"></div>
-                <div class="receipt-line">
-                    <span>Subtotal:</span>
-                    <span id="payment-subtotal"></span>
-                </div>
-                <div class="receipt-line">
-                    <span>Pajak (10%):</span>
-                    <span id="payment-tax"></span>
-                </div>
-                <div class="receipt-line total">
-                    <span>Total Bayar:</span>
-                    <span id="payment-total"></span>
-                </div>
+                <div class="receipt-line"><span>Subtotal:</span><span id="payment-subtotal"></span></div>
+                <div class="receipt-line"><span>Pajak (10%):</span><span id="payment-tax"></span></div>
+                <div class="receipt-line total"><span>Total Bayar:</span><span id="payment-total"></span></div>
             </div>
             <p>Scan QR Code untuk melakukan pembayaran</p>
             <div class="qr-code">
-                <div>📱</div>
-                <div>QR Code QRIS</div>
-                <div style="font-size: 0.9rem; color: #666;">Payboss Cafe</div>
+                <img src="https://i.imgur.com/r3aY33N.jpeg" alt="QR Code Pembayaran QRIS Payboss Cafe">
             </div>
-            <p style="font-size: 0.9rem; color: #666;"><strong>Catatan:</strong> Ini adalah demo QRIS. Dalam implementasi nyata, QR code akan terhubung dengan payment gateway.</p>
+            <p style="font-size: 0.9rem; color: #666;">Setelah membayar, klik tombol konfirmasi.</p>
             <div class="modal-buttons">
-                <button class="checkout-btn" onclick="confirmPayment()">Konfirmasi Pembayaran (Demo)</button>
+                <button class="checkout-btn" onclick="confirmPayment()">Saya Sudah Bayar</button>
                 <button type="button" class="btn-cancel" onclick="closeModal('payment-modal')">Batal</button>
             </div>
         </div>
     </div>
-
-    <!-- Success Modal -->
     <div class="modal" id="success-modal">
         <div class="modal-content">
             <h3>✅ Pembayaran Berhasil!</h3>
             <p>Pesanan Anda telah diterima dan sedang diproses.</p>
             <p><strong>ID Pesanan:</strong> <span id="order-id"></span></p>
-            <p><strong>Estimasi:</strong> 15-20 menit</p>
-            <p>Bukti pembayaran telah dikirim ke WhatsApp kasir.</p>
-            <button class="checkout-btn" onclick="closeModal('success-modal'); resetCart();">OK</button>
+            <p>Struk pembayaran akan dikirim ke WhatsApp Anda.</p>
+            <button class="checkout-btn" onclick="closeModal('success-modal'); resetApp();">OK</button>
         </div>
     </div>
 
     <script>
-        // Global variables
-        let cart = [];
-        let orders = [];
-        let orderCounter = 1;
+        // !! PENTING: GANTI DENGAN URL GOOGLE APPS SCRIPT ANDA !!
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwYZBB4E_CJtClEjRchz4RKEkQBV9969PZjW8Dng4taRnH6xx_-k9jUHCb4N7CsAdqwFQ/exec"; 
 
-        // Initialize
+        let cart = [];
+
         document.addEventListener('DOMContentLoaded', function() {
             setupTabs();
             updateCartDisplay();
-            updateDashboards();
         });
-
-        // Tab functionality
+        
         function setupTabs() {
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
-
             tabButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     const targetTab = this.getAttribute('data-tab');
-                    
                     tabButtons.forEach(btn => btn.classList.remove('active'));
                     tabContents.forEach(content => content.classList.remove('active'));
-                    
                     this.classList.add('active');
                     document.getElementById(targetTab).classList.add('active');
                 });
             });
         }
 
-        // View switching
-        function switchView(view) {
-            document.querySelectorAll('.role-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            
-            event.target.classList.add('active');
-            document.getElementById(view + '-view').classList.add('active');
-            
-            if (view !== 'customer') {
-                updateDashboards();
-            }
-        }
-
-        // Quantity controls
         function changeQuantity(button, change) {
             const qtyDisplay = button.parentElement.querySelector('.qty-display');
-            let currentQty = parseInt(qtyDisplay.textContent);
-            let newQty = Math.max(1, currentQty + change);
+            let newQty = Math.max(1, parseInt(qtyDisplay.textContent) + change);
             qtyDisplay.textContent = newQty;
         }
 
-        // Cart functionality
         function addToCart(button) {
             const menuItem = button.closest('.menu-item');
             const name = menuItem.dataset.name;
             const price = parseInt(menuItem.dataset.price);
             const qty = parseInt(menuItem.querySelector('.qty-display').textContent);
-            
-            // Get variant if exists
-            let variant = '';
-            const variantSelect = menuItem.querySelector('.variant-select');
-            if (variantSelect) {
-                variant = variantSelect.value;
-            }
-            
-            // Create unique item key with variant
+            let variant = menuItem.querySelector('.variant-select')?.value || '';
             const itemKey = variant ? `${name} (${variant})` : name;
             
             const existingItem = cart.find(item => item.key === itemKey);
             if (existingItem) {
                 existingItem.quantity += qty;
             } else {
-                cart.push({ 
-                    key: itemKey,
-                    name, 
-                    variant,
-                    price, 
-                    quantity: qty 
-                });
+                cart.push({ key: itemKey, name, variant, price, quantity: qty });
             }
-            
-            // Reset quantity display
             menuItem.querySelector('.qty-display').textContent = '1';
-            
             updateCartDisplay();
             showNotification('Item ditambahkan ke keranjang!');
         }
@@ -1336,9 +563,7 @@
         function updateCartDisplay() {
             const cartItems = document.getElementById('cart-items');
             const cartCount = document.getElementById('cart-count');
-            const cartSubtotal = document.getElementById('cart-subtotal');
-            const cartTax = document.getElementById('cart-tax');
-            const cartTotal = document.getElementById('cart-total');
+            const [subtotalEl, taxEl, totalEl] = [document.getElementById('cart-subtotal'), document.getElementById('cart-tax'), document.getElementById('cart-total')];
             
             cartItems.innerHTML = '';
             let subtotal = 0;
@@ -1348,7 +573,6 @@
                 const itemTotal = item.price * item.quantity;
                 subtotal += itemTotal;
                 itemCount += item.quantity;
-                
                 cartItems.innerHTML += `
                     <div class="cart-item">
                         <div class="cart-item-info">
@@ -1360,23 +584,21 @@
                             <div class="cart-item-price">Rp ${itemTotal.toLocaleString()}</div>
                             <button class="remove-item" onclick="removeFromCart(${index})">Hapus</button>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
             
             const tax = Math.round(subtotal * 0.1);
             const total = subtotal + tax;
-            
             cartCount.textContent = itemCount;
-            cartSubtotal.textContent = `Rp ${subtotal.toLocaleString()}`;
-            cartTax.textContent = `Rp ${tax.toLocaleString()}`;
-            cartTotal.textContent = `Rp ${total.toLocaleString()}`;
+            subtotalEl.textContent = `Rp ${subtotal.toLocaleString()}`;
+            taxEl.textContent = `Rp ${tax.toLocaleString()}`;
+            totalEl.textContent = `Rp ${total.toLocaleString()}`;
             
             if (cart.length === 0) {
                 cartItems.innerHTML = '<div style="text-align: center; color: #666; padding: 20px;">Keranjang kosong</div>';
-                cartSubtotal.textContent = 'Rp 0';
-                cartTax.textContent = 'Rp 0';
-                cartTotal.textContent = 'Rp 0';
+                 document.querySelector('.checkout-btn').disabled = true;
+            } else {
+                 document.querySelector('.checkout-btn').disabled = false;
             }
         }
 
@@ -1389,10 +611,9 @@
             document.getElementById('cart-sidebar').classList.toggle('open');
         }
 
-        // Checkout process
         function showCheckout() {
             if (cart.length === 0) {
-                alert('Keranjang masih kosong!');
+                showNotification('Keranjang masih kosong!', true);
                 return;
             }
             document.getElementById('checkout-modal').classList.add('active');
@@ -1401,36 +622,24 @@
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
         }
-
-        // Form submission
+        
         document.getElementById('checkout-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            
-            const customerName = document.getElementById('customer-name').value;
-            const tableNumber = document.getElementById('table-number').value;
-            const phoneNumber = document.getElementById('phone-number').value;
-            
-            if (!customerName || !tableNumber || !phoneNumber) {
-                showNotification('Mohon lengkapi semua data!');
+            if (!document.getElementById('customer-name').value || !document.getElementById('table-number').value || !document.getElementById('phone-number').value) {
+                showNotification('Mohon lengkapi semua data!', true);
                 return;
             }
             
-            // Calculate totals
             const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const tax = Math.round(subtotal * 0.1);
             const total = subtotal + tax;
             
-            // Update payment modal
             const paymentItems = document.getElementById('payment-items');
-            paymentItems.innerHTML = '';
-            cart.forEach(item => {
-                paymentItems.innerHTML += `
-                    <div class="receipt-line">
-                        <span>${item.name}${item.variant ? ` (${item.variant})` : ''} x${item.quantity}</span>
-                        <span>Rp ${(item.price * item.quantity).toLocaleString()}</span>
-                    </div>
-                `;
-            });
+            paymentItems.innerHTML = cart.map(item => `
+                <div class="receipt-line">
+                    <span>${item.name}${item.variant ? ` (${item.variant})` : ''} x${item.quantity}</span>
+                    <span>Rp ${(item.price * item.quantity).toLocaleString()}</span>
+                </div>`).join('');
             
             document.getElementById('payment-subtotal').textContent = `Rp ${subtotal.toLocaleString()}`;
             document.getElementById('payment-tax').textContent = `Rp ${tax.toLocaleString()}`;
@@ -1441,242 +650,63 @@
         });
 
         function confirmPayment() {
-            const customerName = document.getElementById('customer-name').value;
-            const tableNumber = document.getElementById('table-number').value;
-            const phoneNumber = document.getElementById('phone-number').value;
-            
-            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const tax = Math.round(subtotal * 0.1);
-            const total = subtotal + tax;
-            
-            // Create order
             const order = {
-                id: `PBC${String(orderCounter).padStart(3, '0')}`,
-                customerName,
-                tableNumber,
-                phoneNumber,
-                items: [...cart],
-                subtotal,
-                tax,
-                total,
+                id: `PBC${Date.now()}`,
+                customerName: document.getElementById('customer-name').value,
+                tableNumber: document.getElementById('table-number').value,
+                phoneNumber: document.getElementById('phone-number').value,
+                items: JSON.stringify(cart),
+                subtotal: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                tax: Math.round(cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.1),
+                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) + Math.round(cart.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.1),
                 status: 'pending',
-                timestamp: new Date(),
+                timestamp: new Date().toISOString(),
                 paymentStatus: 'paid'
             };
             
-            orders.push(order);
-            orderCounter++;
-            
-            // Send WhatsApp receipt (demo)
-            sendWhatsAppReceipt(order);
-            
-            // Show success
-            document.getElementById('order-id').textContent = order.id;
-            closeModal('payment-modal');
-            document.getElementById('success-modal').classList.add('active');
-            
-            updateDashboards();
+            showNotification('Mengirim pesanan...');
+            const paymentBtn = document.querySelector('#payment-modal .checkout-btn');
+            paymentBtn.disabled = true;
+            paymentBtn.textContent = 'Memproses...';
+
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Diperlukan untuk Google Script Web App
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({action: 'addOrder', orderData: order})
+            })
+            .then(() => {
+                document.getElementById('order-id').textContent = order.id;
+                closeModal('payment-modal');
+                document.getElementById('success-modal').classList.add('active');
+                paymentBtn.disabled = false;
+                paymentBtn.textContent = 'Saya Sudah Bayar';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Gagal mengirim pesanan! Coba lagi.', true);
+                paymentBtn.disabled = false;
+                paymentBtn.textContent = 'Saya Sudah Bayar';
+            });
         }
 
-        function sendWhatsAppReceipt(order) {
-            // Demo WhatsApp integration - Receipt format
-            const receipt = `🧾 STRUK PEMBAYARAN - Payboss Cafe
-
-═══════════════════════════════
-📋 ID Pesanan: ${order.id}
-👤 Nama: ${order.customerName}
-🪑 Meja: ${order.tableNumber}
-📞 HP: ${order.phoneNumber}
-📅 Waktu: ${order.timestamp.toLocaleString('id-ID')}
-
-═══════════════════════════════
-📝 DETAIL PESANAN:
-
-${order.items.map(item => 
-`• ${item.name}${item.variant ? ` (${item.variant})` : ''}
-  ${item.quantity} x Rp ${item.price.toLocaleString()} = Rp ${(item.price * item.quantity).toLocaleString()}`
-).join('\n\n')}
-
-═══════════════════════════════
-💰 RINCIAN PEMBAYARAN:
-
-Subtotal: Rp ${order.subtotal.toLocaleString()}
-Pajak (10%): Rp ${order.tax.toLocaleString()}
-TOTAL: Rp ${order.total.toLocaleString()}
-
-═══════════════════════════════
-✅ STATUS: PEMBAYARAN BERHASIL
-🍽️ Pesanan sedang diproses...
-⏱️ Estimasi: 15-20 menit
-
-Terima kasih telah memesan di Payboss Cafe! 🙏`;
-
-            // In real implementation, this would integrate with WhatsApp Business API
-            console.log('WhatsApp receipt sent:', receipt);
-            
-            // Also send notification to cashier
-            const cashierNotification = `🔔 PESANAN BARU MASUK!
-
-ID: ${order.id} | Meja: ${order.tableNumber}
-Pelanggan: ${order.customerName}
-Total: Rp ${order.total.toLocaleString()}
-Items: ${order.items.length} item
-
-Cek dashboard kasir untuk detail lengkap.`;
-
-            console.log('Cashier notification sent:', cashierNotification);
-            showNotification('Struk pembayaran dikirim ke WhatsApp Anda!');
-        }
-
-        function resetCart() {
+        function resetApp() {
             cart = [];
             updateCartDisplay();
-            toggleCart();
-            
-            // Reset form
+            if(document.getElementById('cart-sidebar').classList.contains('open')){
+                toggleCart();
+            }
             document.getElementById('checkout-form').reset();
         }
 
-        // Dashboard updates
-        function updateDashboards() {
-            updateCashierDashboard();
-            updateKitchenDashboard();
-        }
-
-        function updateCashierDashboard() {
-            const cashierOrders = document.getElementById('cashier-orders');
-            const totalOrders = document.getElementById('total-orders');
-            
-            totalOrders.textContent = orders.length;
-            
-            cashierOrders.innerHTML = '';
-            orders.forEach(order => {
-                cashierOrders.innerHTML += `
-                    <div class="order-card">
-                        <div class="order-header">
-                            <div class="order-id">Pesanan #${order.id}</div>
-                            <div class="order-status status-${order.status}">${getStatusText(order.status)}</div>
-                        </div>
-                        <div><strong>Pelanggan:</strong> ${order.customerName}</div>
-                        <div><strong>Meja:</strong> ${order.tableNumber}</div>
-                        <div><strong>HP:</strong> ${order.phoneNumber}</div>
-                        <div><strong>Subtotal:</strong> Rp ${order.subtotal.toLocaleString()}</div>
-                        <div><strong>Pajak:</strong> Rp ${order.tax.toLocaleString()}</div>
-                        <div><strong>Total:</strong> Rp ${order.total.toLocaleString()}</div>
-                        <div><strong>Waktu:</strong> ${order.timestamp.toLocaleString('id-ID')}</div>
-                        <div class="order-items">
-                            <strong>Items:</strong>
-                            ${order.items.map(item => `
-                                <div class="order-item">
-                                    <span>${item.name}${item.variant ? ` (${item.variant})` : ''}</span>
-                                    <span>${item.quantity}x</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="action-buttons">
-                            ${order.status === 'ready' ? `<button class="btn btn-success" onclick="markAsDelivered('${order.id}')">Pesanan Diantar</button>` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        function updateKitchenDashboard() {
-            const kitchenOrders = document.getElementById('kitchen-orders');
-            const activeOrders = document.getElementById('active-orders');
-            
-            const activeOrdersCount = orders.filter(order => ['pending', 'preparing'].includes(order.status)).length;
-            activeOrders.textContent = activeOrdersCount;
-            
-            kitchenOrders.innerHTML = '';
-            orders.filter(order => order.status !== 'delivered').forEach(order => {
-                kitchenOrders.innerHTML += `
-                    <div class="order-card">
-                        <div class="order-header">
-                            <div class="order-id">Pesanan #${order.id}</div>
-                            <div class="order-status status-${order.status}">${getStatusText(order.status)}</div>
-                        </div>
-                        <div><strong>Pelanggan:</strong> ${order.customerName}</div>
-                        <div><strong>Meja:</strong> ${order.tableNumber}</div>
-                        <div><strong>Waktu:</strong> ${order.timestamp.toLocaleString('id-ID')}</div>
-                        <div class="order-items">
-                            <strong>Items untuk dimasak:</strong>
-                            ${order.items.map(item => `
-                                <div class="order-item">
-                                    <span>${item.name}${item.variant ? ` (${item.variant})` : ''}</span>
-                                    <span>${item.quantity}x</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <div class="action-buttons">
-                            ${order.status === 'pending' ? `<button class="btn btn-warning" onclick="startPreparing('${order.id}')">Mulai Masak</button>` : ''}
-                            ${order.status === 'preparing' ? `<button class="btn btn-success" onclick="markAsReady('${order.id}')">Pesanan Siap</button>` : ''}
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        // Order status management
-        function startPreparing(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if (order) {
-                order.status = 'preparing';
-                updateDashboards();
-                showNotification(`Pesanan #${orderId} mulai dimasak!`);
-            }
-        }
-
-        function markAsReady(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if (order) {
-                order.status = 'ready';
-                updateDashboards();
-                showNotification(`Pesanan #${orderId} siap untuk diantar!`);
-            }
-        }
-
-        function markAsDelivered(orderId) {
-            const order = orders.find(o => o.id === orderId);
-            if (order) {
-                order.status = 'delivered';
-                updateDashboards();
-                showNotification(`Pesanan #${orderId} telah diantar!`);
-            }
-        }
-
-        function getStatusText(status) {
-            const statusMap = {
-                'pending': 'Menunggu',
-                'preparing': 'Sedang Dimasak',
-                'ready': 'Siap Diantar',
-                'delivered': 'Selesai'
-            };
-            return statusMap[status] || status;
-        }
-
-        // Utility functions
-        function showNotification(message) {
-            // Simple notification - in real app, use toast library
+        function showNotification(message, isError = false) {
             const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #8B4513;
-                color: white;
-                padding: 15px 20px;
-                border-radius: 8px;
-                z-index: 3000;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            `;
+            notification.style.cssText = `position: fixed; top: 20px; right: 20px; background: ${isError ? '#dc3545' : '#8B4513'}; color: white; padding: 15px 20px; border-radius: 8px; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.2);`;
             notification.textContent = message;
             document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
+            setTimeout(() => notification.remove(), 3000);
         }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'990d7920954d6112',t:'MTc2MDg0NzUyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
+
